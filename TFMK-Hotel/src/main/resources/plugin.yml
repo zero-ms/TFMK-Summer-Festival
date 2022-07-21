@@ -1,0 +1,11 @@
+name: Tfmkhotel
+version: '${version}'
+main: ms.zero.tfmk.tfmkhotel.Tfmkhotel
+api-version: 1.16
+prefix: TFMK-Hotel
+authors: [ DataCat ]
+description: TFMK Hotel managing plugin
+commands:
+  room:
+    description: For managing TFMK hotel.
+    usage: "Usage: /room [confirm/list] (value)"
