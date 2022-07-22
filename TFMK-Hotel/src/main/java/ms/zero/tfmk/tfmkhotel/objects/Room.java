@@ -1,4 +1,4 @@
-package ms.zero.tfmk.tfmkhotel.Objects;
+package ms.zero.tfmk.tfmkhotel.objects;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;

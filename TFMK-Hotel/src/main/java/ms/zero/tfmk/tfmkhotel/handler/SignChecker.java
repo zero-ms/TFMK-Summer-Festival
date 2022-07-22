@@ -40,4 +40,9 @@ public class SignChecker {
             return -1;
         }
     }
+
+    public Location getSignLocation() {
+        getRoomNumberFromSign();
+        return this.signLocation;
+    }
 }

@@ -1,0 +1,6 @@
+name: Tfmkhidenseek
+version: '${version}'
+main: ms.zero.tfmk.tfmkhidenseek.Tfmkhidenseek
+api-version: 1.16
+prefix: TFMK-HideNSeek
+authors: [ DataCat ]

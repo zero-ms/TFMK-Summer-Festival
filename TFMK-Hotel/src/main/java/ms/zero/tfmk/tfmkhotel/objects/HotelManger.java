@@ -1,4 +1,4 @@
-package ms.zero.tfmk.tfmkhotel.Objects;
+package ms.zero.tfmk.tfmkhotel.objects;
 
 import ms.zero.tfmk.tfmkhotel.miscellaneous.FileManager;
 import static ms.zero.tfmk.tfmkhotel.miscellaneous.GlobalVariable.*;

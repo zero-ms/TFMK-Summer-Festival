@@ -1,7 +1,7 @@
 package ms.zero.tfmk.tfmkhotel.miscellaneous;
 
-import ms.zero.tfmk.tfmkhotel.Objects.HotelManger;
-import ms.zero.tfmk.tfmkhotel.Objects.Room;
+import ms.zero.tfmk.tfmkhotel.objects.HotelManger;
+import ms.zero.tfmk.tfmkhotel.objects.Room;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 

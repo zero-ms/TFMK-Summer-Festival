@@ -1,9 +1,9 @@
 package ms.zero.tfmk.tfmkhotel.handler;
 
-import ms.zero.tfmk.tfmkhotel.Objects.HotelManger;
-import ms.zero.tfmk.tfmkhotel.Objects.Room;
+import ms.zero.tfmk.tfmkhotel.objects.HotelManger;
+
 import static ms.zero.tfmk.tfmkhotel.miscellaneous.Util.*;
-import static ms.zero.tfmk.tfmkhotel.miscellaneous.GlobalVariable.*;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
