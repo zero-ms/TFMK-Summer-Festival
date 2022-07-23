@@ -12,6 +12,10 @@ repositories {
         url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
     }
     maven {
+        name = 'everything'
+        url = 'https://repo.citizensnpcs.co/'
+    }
+    maven {
         name = 'sonatype'
         url = 'https://oss.sonatype.org/content/groups/public/'
     }
@@ -19,6 +23,7 @@ repositories {
 
 dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
+    compileOnly 'net.citizensnpcs:citizens-main:2.0.30-SNAPSHOT'
 }
 
 def targetJavaVersion = 8
