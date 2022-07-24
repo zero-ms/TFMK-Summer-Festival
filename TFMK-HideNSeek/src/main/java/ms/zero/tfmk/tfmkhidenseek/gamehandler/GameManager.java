@@ -91,7 +91,12 @@ public class GameManager {
     }
 
     public static Integer getRandomTagger(Integer max) {
-        int random = (int) (Math.random() * playersMap.size() - 1);
+        int random = (int) (Math.random() * playersList.size());
+        if (playersList.get(random).equals(PlayerType.TAGGER)) {
+            return getRandomTagger(max);
+        } else {
+            return random;
+        }
     }
 
     public static void startGame() {

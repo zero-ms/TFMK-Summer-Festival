@@ -48,7 +48,7 @@ public class HotelManger {
 
     public static ReturnType assignNewRoom(Player p, Integer apart) {
         if (!isPlayerAlreadyAssigned(p.getUniqueId())) {
-            Integer roomNumber = getRandomNumber(apart, 0);
+            Integer roomNumber = getRandomNumber(apart);
             if (roomNumber == -1) {
                 Bukkit.getConsoleSender().sendMessage("&4경고! 방이 부족합니다.");
                 return ReturnType.ROOM_INSUFFICIENT;
@@ -63,8 +63,12 @@ public class HotelManger {
         }
     }
 
-    private static Integer getRandomNumber(Integer apart, Integer tryCount) {
-        if (tryCount >= 140) {
+    private static Boolean isRoomFulled() {
+        return roomTable.size() >= 140;
+    }
+
+    private static Integer getRandomNumber(Integer apart) {
+        if (isRoomFulled()) {
             return -1;
         } else {
             int floor = (int)(Math.random() * 5 + 2);
@@ -72,7 +76,7 @@ public class HotelManger {
             Integer roomNumber = (apart * 1000) + (floor * 100) + room;
 
             if (isExistRoom(roomNumber)) {
-                return getRandomNumber(apart, tryCount++);
+                return getRandomNumber(apart);
             } else {
                 return roomNumber;
             }
