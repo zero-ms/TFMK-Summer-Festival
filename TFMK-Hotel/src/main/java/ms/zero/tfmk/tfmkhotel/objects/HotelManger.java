@@ -67,8 +67,8 @@ public class HotelManger {
         if (tryCount >= 140) {
             return -1;
         } else {
-            int floor = (int)(Math.random() * 4 + 2);
-            int room = (int)(Math.random() * 13 + 1);
+            int floor = (int)(Math.random() * 5 + 2);
+            int room = (int)(Math.random() * 14 + 1);
             Integer roomNumber = (apart * 1000) + (floor * 100) + room;
 
             if (isExistRoom(roomNumber)) {

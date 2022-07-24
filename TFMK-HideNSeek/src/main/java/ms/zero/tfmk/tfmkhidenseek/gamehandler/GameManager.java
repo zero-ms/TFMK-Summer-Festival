@@ -90,7 +90,8 @@ public class GameManager {
         }
     }
 
-    public static Integer getRandomTagger(int max) {
+    public static Integer getRandomTagger(Integer max) {
+        int random = (int) (Math.random() * playersMap.size() - 1);
     }
 
     public static void startGame() {
