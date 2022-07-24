@@ -9,6 +9,11 @@ public class GameRule {
         TAGGER,
     }
 
+    public enum Reason {
+        NPC,
+        FORCE,
+    }
+
     public static Integer getMinPlayers() {
         return minPlayers;
     }
