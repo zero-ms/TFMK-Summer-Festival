@@ -22,6 +22,7 @@ public final class Tfmkhidenseek extends JavaPlugin {
 
         getCommand("game").setExecutor(new CommandListener());
         getCommand("game").setTabCompleter(new TabCompleter());
+        getCommand("이스터에그").setExecutor(new CommandListener());
 
         getServer().getPluginManager().registerEvents(new EventListener(), this);
     }
