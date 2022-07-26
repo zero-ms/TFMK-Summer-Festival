@@ -7,40 +7,29 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 
 import static ms.zero.tfmk.tfmkhidenseek.gamehandler.GameRule.PlayerType;
-import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.GlobalVariable.plugin;
+import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.GlobalVariable.*;
 import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.Util.translate;
 
 public class GameManager {
     private static HashMap<Player, GameRule.PlayerType> playersMap = new HashMap<>();
     private static ArrayList<Player> playersList = new ArrayList<>();
     private static Boolean gameStarted = false;
-    private static Integer startWaitTaskID = -1;
-    private static ItemStack pumpkinHelmet;
-    private static ItemStack goldHoe;
+    private static Integer startCountDownTaskID = -1;
+    private static Integer startTaskID = -1;
     private static Location[] barrierLocation = new Location[30];
     private static Location baseLocation = new Location(Bukkit.getWorld("world"), 283.5, 76, -94.5, 180, 5);
     private static Location startLocation = new Location(Bukkit.getWorld("world"), 283.5, 76, -104.5, 180, 5);
 
     static {
-        pumpkinHelmet = new ItemStack(Material.CARVED_PUMPKIN);
-        goldHoe = new ItemStack(Material.GOLDEN_HOE);
-
-        ItemMeta goldHoeMeta = goldHoe.getItemMeta();
-        goldHoeMeta.setDisplayName(translate("&6술래의 낫"));
-        ArrayList<String> lores = new ArrayList<>();
-        lores.add(translate("&8술래들이 사용하는 낫이다."));
-        goldHoeMeta.setLore(lores);
-        goldHoe.setItemMeta(goldHoeMeta);
-
         World world = Bukkit.getWorld("world");
         for (int i = 0; i < 5; i++) {
             barrierLocation[i] = new Location(world, 275, 78, -103 + (i * -1));
@@ -72,15 +61,20 @@ public class GameManager {
             playersList.add(p);
             p.teleport(startLocation);
             broadcastToPlayers(String.format(translate("&a[+] &f%s &7&o(현재 인원수: %d명)"), p.getName(), playersMap.size()));
-            if (canGameStart() && startWaitTaskID == -1) {
+            if (canGameStart() && startCountDownTaskID == -1 && startTaskID == -1) {
                 broadcastToPlayers(translate("&a[!] &730초 후 게임이 &a시작&7됩니다."));
-                startWaitTaskID = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+                startCountDownTaskID = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+                    @Override
+                    public void run() {
+                        startCountDown(10, 1);
+                    }
+                }, 20L * 20);
+                startTaskID = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
                     @Override
                     public void run() {
                         startGame();
                     }
                 }, 20L * 30);
-
             }
             return true;
         } else {
@@ -95,10 +89,12 @@ public class GameManager {
             p.teleport(baseLocation);
             broadcastToPlayers(String.format(translate("&c[-] &f%s &7&o(현재 인원수: %d명)"), p.getName(), playersMap.size()));
             p.sendMessage(translate("&c[-] &7게임에서 퇴장하셨습니다."));
-            if (!canGameStart() && startWaitTaskID != -1) {
+            if (!canGameStart() && startCountDownTaskID != -1 && startTaskID != -1) {
                 broadcastToPlayers(translate("&c[!] &7최소인원이 부족하여 게임이 &c취소&7됩니다."));
-                Bukkit.getScheduler().cancelTask(startWaitTaskID);
-                startWaitTaskID = -1;
+                Bukkit.getScheduler().cancelTask(startCountDownTaskID);
+                Bukkit.getScheduler().cancelTask(startTaskID);
+                startCountDownTaskID = -1;
+                startTaskID = -1;
             }
             return true;
         } else {
@@ -112,8 +108,14 @@ public class GameManager {
     }
 
     private static Boolean isGameCanPlayable() {
-        // Check tagger's number or etc...
-        return false;
+        if (getRunnerVolume() == 0 || getTaggerVolume() == 0) {
+            return false;
+        }
+        return true;
+    }
+
+    public static Boolean isGameStarted() {
+        return gameStarted;
     }
 
     private static Boolean alreadyJoined(Player p) {
@@ -198,20 +200,23 @@ public class GameManager {
 
     private static void initTagger() {
         // Random assign tagger.
+        Collections.shuffle(playersList);
         for (int i = 0; i < GameRule.getLeastTaggers(); i++) {
             Integer r = getRandomIndex();
-            playersMap.put(playersList.get(r), PlayerType.TAGGER);
-
+            Bukkit.getPlayer("Bamboo_Photo").sendMessage(String.format(translate("&c[DEBUG] random_index: %d"), r));
             Player p = playersList.get(r);
+            playersMap.put(p, PlayerType.TAGGER);
             makeTagger(p);
         }
-
-        broadcastToRunner("&a휴, 살았다!", "&f당신은 도망자입니다. 술래로부터 도망가세요!", 7);
+        GameScore.initPlayersVolume(getTaggerVolume(), getRunnerVolume());
+        broadcastToRunner(translate("&a휴, 살았다!"), translate("&f당신은 도망자입니다. 술래로부터 도망가세요!"), 7);
     }
 
     private static void makeTagger(Player p) {
-        p.getInventory().setHelmet(pumpkinHelmet);
-        p.getInventory().setItem(0, goldHoe);
+        Util.removeItem(p, KEY_PIECE);
+
+        p.getInventory().setHelmet(PUMPKIN_HELMET);
+        p.getInventory().setItem(0, GOLDEN_HOE);
         p.getInventory().setHeldItemSlot(0);
         PotionEffect eInvisible = new PotionEffect(PotionEffectType.INVISIBILITY, 100000 * 20, 1, false, false);
         PotionEffect eSlow = new PotionEffect(PotionEffectType.SLOW, 10 * 20, 250, false, false);
@@ -239,17 +244,23 @@ public class GameManager {
             makeTagger(p);
 
             GameScore.decreaseRunner();
+            for (int i = 0; i < GameScore.getPlayerPickedUpKeyVolume(p); i++) {
+                KeyDropper.spawnKey();
+            }
+            GameScore.dropKey(p);
 
-
-            broadcastToPlayers(String.format(translate("&c[!] &f%s&7님이 술래가 되었습니다."), p.getName()));
-            broadcastToPlayers(String.format(translate("&c[!] &7도망자가 &e%d명 남았습니다."), getRemainingRunner()));
-            broadcastToPlayers(translate("&c[!] &7도망자가 죽은 자리에 열쇠가 떨어집니다."));
+            if (isGameCanPlayable()) {
+                broadcastToPlayers(String.format(translate("&c[!] &f%s&7님이 술래가 되었습니다."), p.getName()));
+                broadcastToPlayers(String.format(translate("&c[!] &7도망자가 &e%d&7명 남았습니다."), getRemainingRunner()));
+                broadcastToPlayers(translate("&c[!] &7도망자가 죽은 자리에 열쇠가 떨어집니다."));
+            } else {
+                endGame();
+            }
         }
     }
 
     private static void initScore() {
         GameScore.initScores();
-        GameScore.initPlayersVolume(getTaggerVolume(), getRunnerVolume());
         for (Player p : playersList) {
             GameScore.addPlayer(p, 0);
         }
@@ -259,6 +270,9 @@ public class GameManager {
         // Teleport to lobby.
         // Steal tagger's item and clear potion effect.
         // Clear dropped items.
+        startCountDownTaskID = -1;
+        startTaskID = -1;
+
         clearTagger();
         clearRunner();
         installBarrier();
@@ -267,15 +281,13 @@ public class GameManager {
 
         playersMap.clear();
         playersList.clear();
-
-        Bukkit.getScheduler().cancelTasks(plugin);
     }
 
     private static void clearTagger() {
         for (Player p : playersList) {
             if (playersMap.get(p) == PlayerType.TAGGER) {
                 p.getInventory().setHelmet(new ItemStack(Material.AIR));
-                p.getInventory().remove(goldHoe);
+                Util.removeItem(p, GOLDEN_HOE);
 
                 Util.removePotionEffects(p);
 
@@ -287,6 +299,8 @@ public class GameManager {
     private static void clearRunner() {
         for (Player p : playersList) {
             if (playersMap.get(p) == PlayerType.RUNNER) {
+                Util.removeItem(p, KEY_PIECE);
+
                 p.teleport(baseLocation);
             }
         }
@@ -328,13 +342,12 @@ public class GameManager {
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
                 @Override
                 public void run() {
-                    if (gameStarted) {
-                        if (count <= 3) {
-                            broadcastToPlayers(translate("&a시작까지..."), String.format(translate("&c%d초"), count), 2);
-                        } else {
-                            broadcastToPlayers(translate("&a시작까지..."), String.format(translate("&7%d초"), count), 2);
-                        }
+                    if (count <= 3) {
+                        broadcastToPlayers(translate("&a시작까지..."), String.format(translate("&c%d초"), count), 2);
+                    } else {
+                        broadcastToPlayers(translate("&a시작까지..."), String.format(translate("&7%d초"), count), 2);
                     }
+
                 }
             }, 20L * (startNumber - i));
         }
@@ -358,22 +371,33 @@ public class GameManager {
         }
     }
 
-    public static void startGame() {
-        gameStarted = true;
-
-
-        startCountDown(10, 1); // using 10 seconds
+    private static void ending() {
+        if (isGameCanPlayable()) {
+            // Runner WIN
+            broadcastToPlayers(translate("&e게임 종료!"), translate("&e도망자들이 저택을 성공적으로 탈출했습니다!"), 10);
+        } else {
+            // Tagger WIN
+            broadcastToPlayers(translate("&e게임 종료!"), translate("&c술래가 도망자들을 전부 고기로 만들어버렸습니다..."), 10);
+        }
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
             public void run() {
-                if (gameStarted) {
-                    removeBarrier();
-                    broadcastToPlayers(translate("&a게임 시작!"), translate("&f움직이세요!"), 7);
-                    broadcastToPlayers(translate("&c[!] &730초 후 &c술래&7가 정해집니다."));
-                    broadcastToPlayers(translate("&c[!] &7건물 곳곳으로 빠르게 도망치세요!"));
-                }
+                finalizeGame();
             }
         }, 20L * 10);
+    }
+
+    public static void startGame() {
+        gameStarted = true;
+
+        if (gameStarted) {
+            initScore();
+            removeBarrier();
+            broadcastToPlayers(translate("&a게임 시작!"), translate("&f움직이세요!"), 7);
+            broadcastToPlayers(translate("&c[!] &730초 후 &c술래&7가 정해집니다."));
+            broadcastToPlayers(translate("&c[!] &7건물 곳곳으로 빠르게 도망치세요!"));
+        }
+
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
             public void run() {
@@ -381,7 +405,7 @@ public class GameManager {
                     taggerCountDown(10, 1);
                 }
             }
-        }, 20L * 30);
+        }, 20L * 20);
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
@@ -390,7 +414,7 @@ public class GameManager {
                     initTagger();
                 }
             }
-        }, 20L * 40);
+        }, 20L * 30);
 
         Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
             @Override
@@ -404,16 +428,26 @@ public class GameManager {
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
             public void run() {
-                if (gameStarted) {
-                    broadcastToPlayers("game end!");
-                    finalizeGame();
-                    gameStarted = false;
-                }
+                endGame();
             }
-        }, 20L * 280);
+        }, 20L * 220);
+    }
+
+    public static void endGame() {
+        if (gameStarted) {
+            gameStarted = false;
+            Bukkit.getScheduler().cancelTasks(plugin);
+            ending();
+        }
     }
 
     public static void interruptGame() {
-        gameStarted = false;
+        if (gameStarted) {
+            gameStarted = false;
+            Bukkit.getScheduler().cancelTasks(plugin);
+            broadcastToPlayers(translate("&c[NOTICE] &7관리자가 게임을 중단시켰습니다."));
+            broadcastToPlayers(translate("&c[NOTICE] &7자세한 것은 관리자에게 문의하십시오."));
+            finalizeGame();
+        }
     }
 }

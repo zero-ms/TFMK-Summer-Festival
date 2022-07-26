@@ -4,6 +4,7 @@ import ms.zero.tfmk.tfmkhidenseek.gamehandler.GameManager;
 import ms.zero.tfmk.tfmkhidenseek.gamehandler.GameRule;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,6 +19,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.Util.translate;
+import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.GlobalVariable.*;
 
 public class EventListener implements Listener {
 	@EventHandler
@@ -53,22 +55,26 @@ public class EventListener implements Listener {
 				e.setCancelled(true);
 			}
 		}
-		if (e.getCurrentItem().hasItemMeta()) {
-			if (e.getCurrentItem().getItemMeta().getDisplayName().contains("술래의 낫")) {
-				Player p = (Player) e.getWhoClicked();
-				if (GameManager.isTagger(p)) {
-					e.setCancelled(true);
-				}
+		if (e.getCurrentItem() != null && e.getCurrentItem().equals(GOLDEN_HOE)) {
+			Player p = (Player) e.getWhoClicked();
+			if (GameManager.isTagger(p)) {
+				e.setCancelled(true);
 			}
 		}
 	}
 
 	@EventHandler
 	public void onPlayerDropItem(PlayerDropItemEvent e) {
-		if (e.getItemDrop().getItemStack().hasItemMeta()) {
-			if (e.getItemDrop().getItemStack().getItemMeta().getDisplayName().contains("술래의 낫")) {
-				Player p = e.getPlayer();
-				if (GameManager.isTagger(p)) {
+		ItemStack i = e.getItemDrop().getItemStack();
+		if (i.equals(GOLDEN_HOE)) {
+			if (GameManager.isTagger(e.getPlayer())) {
+				e.setCancelled(true);
+			}
+		}
+
+		if (i.hasItemMeta()) {
+			if (i.getItemMeta().getDisplayName().equals(KEY_PIECE.getItemMeta().getDisplayName())) {
+				if (GameManager.isRunner(e.getPlayer())) {
 					e.setCancelled(true);
 				}
 			}
@@ -81,7 +87,11 @@ public class EventListener implements Listener {
 			Player victim = (Player) e.getEntity();
 			Player attacker = (Player) e.getDamager();
 			if (GameManager.isTagger(attacker) && GameManager.isRunner(victim)) {
-				GameManager.catchTheRunner(victim);
+				if (GameManager.isGameStarted()) {
+					GameManager.catchTheRunner(victim);
+				} else {
+					e.setCancelled(true);
+				}
 			} else {
 				e.setCancelled(true);
 			}
@@ -99,10 +109,16 @@ public class EventListener implements Listener {
 	public void onPlayerPickupItem(EntityPickupItemEvent e) {
 		ItemStack i = e.getItem().getItemStack();
 		if (i.hasItemMeta()) {
-			if (i.getItemMeta().getDisplayName().contains("해방의 열쇠 조각")) {
+			if (i.getItemMeta().getDisplayName().equals(KEY_PIECE.getItemMeta().getDisplayName())) {
 				Player p = (Player) e.getEntity();
 				if (GameManager.isRunner(p)) {
-					GameManager.pickUpKey((Player) e.getEntity());
+					if (GameManager.isGameStarted()) {
+						GameManager.pickUpKey((Player) e.getEntity());
+					} else {
+						e.setCancelled(true);
+					}
+				} else {
+					e.setCancelled(true);
 				}
 			}
 		}

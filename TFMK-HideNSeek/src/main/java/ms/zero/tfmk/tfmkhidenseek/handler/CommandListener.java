@@ -1,6 +1,7 @@
 package ms.zero.tfmk.tfmkhidenseek.handler;
 
 import ms.zero.tfmk.tfmkhidenseek.gamehandler.GameManager;
+import ms.zero.tfmk.tfmkhidenseek.gamehandler.GameScore;
 import ms.zero.tfmk.tfmkhidenseek.gamehandler.KeyDropper;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -15,14 +16,14 @@ public class CommandListener implements CommandExecutor {
         if (label.equalsIgnoreCase("game")) {
             Player p = (Player) sender;
             if (args.length > 0) {
-                if (args[0].equalsIgnoreCase("start")) {
+                if (args[0].equalsIgnoreCase("toggle")) {
 
                 } else if (args[0].equalsIgnoreCase("stop")) {
-
+                    GameManager.interruptGame();
                 } else if (args[0].equalsIgnoreCase("status")) {
 
                 } else if (args[0].equalsIgnoreCase("test")) {
-                    KeyDropper.spawnKey();
+                    p.sendMessage(String.format(translate("&c[DEBUG] &7drop_key: %d pick_key: %d tagger: %d runner: %d"), GameScore.getDroppedKeyVolume(), GameScore.getPickedUpKeyVolume(), GameScore.getTaggerVolume(), GameScore.getRunnerVolume()));
                 }
             }
             return true;

@@ -24,11 +24,7 @@ public class GameScore {
     }
 
     public static Integer getPlayerPickedUpKeyVolume(Player p) {
-        if (pickedUpKeyMap.containsKey(p)) {
-            return pickedUpKeyMap.get(p);
-        } else {
-            return 0;
-        }
+        return pickedUpKeyMap.getOrDefault(p, 0);
     }
 
     public static void setDroppedKeyVolume(Integer i) {
