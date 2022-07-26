@@ -116,3 +116,11 @@ run/
 
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
+
+# vim setting files
+.settings/
+.project
+.classpath
+
+# etc
+build.sh

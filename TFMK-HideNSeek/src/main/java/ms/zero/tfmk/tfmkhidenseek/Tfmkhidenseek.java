@@ -19,6 +19,7 @@ public final class Tfmkhidenseek extends JavaPlugin {
         plugin = this;
 
         FileHandler.initSettingFile();
+        FileHandler.initKeyDropListFile();
 
         getCommand("game").setExecutor(new CommandListener());
         getCommand("game").setTabCompleter(new TabCompleter());

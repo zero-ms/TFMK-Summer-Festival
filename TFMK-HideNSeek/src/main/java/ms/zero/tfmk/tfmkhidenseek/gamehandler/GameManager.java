@@ -7,7 +7,6 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -24,7 +23,7 @@ public class GameManager {
     private static HashMap<Player, GameRule.PlayerType> playersMap = new HashMap<>();
     private static ArrayList<Player> playersList = new ArrayList<>();
     private static Boolean gameStarted = false;
-    private static Integer taskID = -1;
+    private static Integer startWaitTaskID = -1;
     private static ItemStack pumpkinHelmet;
     private static ItemStack goldHoe;
     private static Location[] barrierLocation = new Location[30];
@@ -67,16 +66,15 @@ public class GameManager {
         barrierLocation[29] = new Location(world, 281, 78, -108);
     }
 
-
     public static Boolean join(Player p) {
         if (!gameStarted && !alreadyJoined(p)) {
             playersMap.put(p, PlayerType.RUNNER);
             playersList.add(p);
             p.teleport(startLocation);
             broadcastToPlayers(String.format(translate("&a[+] &f%s &7&o(현재 인원수: %d명)"), p.getName(), playersMap.size()));
-            if (canGameStart() && taskID == -1) {
+            if (canGameStart() && startWaitTaskID == -1) {
                 broadcastToPlayers(translate("&a[!] &730초 후 게임이 &a시작&7됩니다."));
-                taskID = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+                startWaitTaskID = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
                     @Override
                     public void run() {
                         startGame();
@@ -97,10 +95,10 @@ public class GameManager {
             p.teleport(baseLocation);
             broadcastToPlayers(String.format(translate("&c[-] &f%s &7&o(현재 인원수: %d명)"), p.getName(), playersMap.size()));
             p.sendMessage(translate("&c[-] &7게임에서 퇴장하셨습니다."));
-            if (!canGameStart() && taskID != -1) {
+            if (!canGameStart() && startWaitTaskID != -1) {
                 broadcastToPlayers(translate("&c[!] &7최소인원이 부족하여 게임이 &c취소&7됩니다."));
-                Bukkit.getScheduler().cancelTask(taskID);
-                taskID = -1;
+                Bukkit.getScheduler().cancelTask(startWaitTaskID);
+                startWaitTaskID = -1;
             }
             return true;
         } else {
@@ -132,6 +130,34 @@ public class GameManager {
 
     public static Boolean isTagger(Player p) {
         return playersList.contains(p) && playersMap.get(p) == PlayerType.TAGGER;
+    }
+
+    public static Boolean isRunner(Player p) {
+        return playersList.contains(p) && playersMap.get(p) == PlayerType.RUNNER;
+    }
+
+    private static Integer getTaggerVolume() {
+        int count = 0;
+        for (Player p : playersList) {
+            if (playersMap.get(p).equals(PlayerType.TAGGER)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private static Integer getRunnerVolume() {
+        int count = 0;
+        for (Player p : playersList) {
+            if (playersMap.get(p).equals(PlayerType.RUNNER)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public static String getRole(Player p) {
+        return playersMap.get(p).equals(PlayerType.RUNNER) ? "도망자" : "술래";
     }
 
     private static void broadcastToPlayers(String msg) {
@@ -190,10 +216,43 @@ public class GameManager {
         PotionEffect eInvisible = new PotionEffect(PotionEffectType.INVISIBILITY, 100000 * 20, 1, false, false);
         PotionEffect eSlow = new PotionEffect(PotionEffectType.SLOW, 10 * 20, 250, false, false);
         PotionEffect eJumpBoost = new PotionEffect(PotionEffectType.JUMP, 10 * 20, 250, false, false);
-        p.addPotionEffects(new ArrayList<PotionEffect>(Arrays.asList(eSlow, eJumpBoost, eInvisible)));
+        p.addPotionEffects(new ArrayList<>(Arrays.asList(eSlow, eJumpBoost, eInvisible)));
 
         p.sendTitle(translate("&c이런!"), translate("&f당신은 술래입니다. 도망자를 잡으세요!"), 0, 20 * 7, 0);
         p.sendMessage(translate("&6[!] &7당신은 술래입니다!"));
+    }
+
+    private static Integer getRemainingRunner() {
+        Integer count = 0;
+        for (Player p : playersList) {
+            if (playersMap.get(p).equals(PlayerType.RUNNER)) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    public static void catchTheRunner(Player p) {
+        if (isRunner(p)) {
+            playersMap.put(p, PlayerType.TAGGER);
+            makeTagger(p);
+
+            GameScore.decreaseRunner();
+
+
+            broadcastToPlayers(String.format(translate("&c[!] &f%s&7님이 술래가 되었습니다."), p.getName()));
+            broadcastToPlayers(String.format(translate("&c[!] &7도망자가 &e%d명 남았습니다."), getRemainingRunner()));
+            broadcastToPlayers(translate("&c[!] &7도망자가 죽은 자리에 열쇠가 떨어집니다."));
+        }
+    }
+
+    private static void initScore() {
+        GameScore.initScores();
+        GameScore.initPlayersVolume(getTaggerVolume(), getRunnerVolume());
+        for (Player p : playersList) {
+            GameScore.addPlayer(p, 0);
+        }
     }
 
     private static void finalizeGame() {
@@ -204,8 +263,12 @@ public class GameManager {
         clearRunner();
         installBarrier();
 
+        KeyDropper.reset();
+
         playersMap.clear();
         playersList.clear();
+
+        Bukkit.getScheduler().cancelTasks(plugin);
     }
 
     private static void clearTagger() {
@@ -239,6 +302,15 @@ public class GameManager {
         for (int i = 0; i < 30; i++) {
             barrierLocation[i].getBlock().setType(Material.AIR);
         }
+    }
+
+    private static void dropKeyPiece() {
+        KeyDropper.spawnKey();
+        GameScore.setDroppedKeyVolume(GameScore.getDroppedKeyVolume() + 1);
+    }
+
+    public static void pickUpKey(Player p) {
+        GameScore.pickUpKey(p);
     }
 
     private static Integer getRandomIndex() {
@@ -289,6 +361,7 @@ public class GameManager {
     public static void startGame() {
         gameStarted = true;
 
+
         startCountDown(10, 1); // using 10 seconds
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
@@ -319,6 +392,15 @@ public class GameManager {
             }
         }, 20L * 40);
 
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+            @Override
+            public void run() {
+                if (gameStarted) {
+                    dropKeyPiece();
+                }
+            }
+        }, 20L * 40, 20L * 10L);
+
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
             public void run() {
@@ -328,7 +410,7 @@ public class GameManager {
                     gameStarted = false;
                 }
             }
-        }, 20L * 60);
+        }, 20L * 280);
     }
 
     public static void interruptGame() {

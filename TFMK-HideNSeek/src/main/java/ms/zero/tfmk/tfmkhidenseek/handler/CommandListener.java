@@ -1,6 +1,7 @@
 package ms.zero.tfmk.tfmkhidenseek.handler;
 
 import ms.zero.tfmk.tfmkhidenseek.gamehandler.GameManager;
+import ms.zero.tfmk.tfmkhidenseek.gamehandler.KeyDropper;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -14,12 +15,14 @@ public class CommandListener implements CommandExecutor {
         if (label.equalsIgnoreCase("game")) {
             Player p = (Player) sender;
             if (args.length > 0) {
-                if (args[1].equalsIgnoreCase("start")) {
+                if (args[0].equalsIgnoreCase("start")) {
 
-                } else if (args[1].equalsIgnoreCase("stop")) {
+                } else if (args[0].equalsIgnoreCase("stop")) {
 
-                } else if (args[1].equalsIgnoreCase("status")) {
+                } else if (args[0].equalsIgnoreCase("status")) {
 
+                } else if (args[0].equalsIgnoreCase("test")) {
+                    KeyDropper.spawnKey();
                 }
             }
             return true;
