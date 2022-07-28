@@ -73,7 +73,9 @@ public class FileHandler {
 
     private static Location parseLocationFromString(String context) {
         String[] split = context.split(",");
-        Location l = new Location(world, Integer.parseInt(split[0].replace("Location(", "")), Integer.parseInt(split[1].replace(" ", "")), Integer.parseInt(split[2].replace(" ", "").replace(")", "")));
+        Location l = new Location(world, Integer.parseInt(split[0].replace("Location(", "")),
+                Integer.parseInt(split[1].replace(" ", "")),
+                Integer.parseInt(split[2].replace(" ", "").replace(")", "")));
         return l;
     }
 
@@ -85,7 +87,8 @@ public class FileHandler {
                 KeyDropper.put(parseLocationFromString(context));
             }
             reader.close();
-            Bukkit.getConsoleSender().sendMessage(String.format(translate("&adrop_list.dat 으로부터 %d개의 위치를 읽어왔습니다."), KeyDropper.size()));
+            Bukkit.getConsoleSender()
+                    .sendMessage(String.format(translate("&adrop_list.dat 으로부터 %d개의 위치를 읽어왔습니다."), KeyDropper.size()));
         } catch (Exception ex) {
             ex.printStackTrace();
         }

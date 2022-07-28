@@ -17,6 +17,7 @@ import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.Util.translate;
 public class KeyDropper {
     private static HashMap<Location, Boolean> keyGenMap = new HashMap<>();
     private static ArrayList<Location> keyGenList = new ArrayList<>();
+
     public static void reset() {
         for (Location l : keyGenList) {
             keyGenMap.put(l, false);
@@ -60,6 +61,7 @@ public class KeyDropper {
     public static void spawnKey() {
         Location l = getRandomLocation();
         world.dropItemNaturally(l, KEY_PIECE);
-        Bukkit.getPlayer("Bamboo_Photo").sendMessage(String.format(translate("&c[DEBUG] &7열쇠조각 좌표: %d, %d, %d"), l.getBlockX(), l.getBlockY(), l.getBlockZ()));
+        Bukkit.getPlayer("Bamboo_Photo").sendMessage(String.format(translate("&c[DEBUG] &7열쇠조각 좌표: %d, %d, %d"),
+                l.getBlockX(), l.getBlockY(), l.getBlockZ()));
     }
 }

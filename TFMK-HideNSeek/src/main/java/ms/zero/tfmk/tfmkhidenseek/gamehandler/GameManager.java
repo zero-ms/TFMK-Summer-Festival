@@ -63,7 +63,8 @@ public class GameManager {
             playersMap.put(p, PlayerType.RUNNER);
             playersList.add(p);
             p.teleport(startLocation);
-            broadcastToPlayers(String.format(translate("&a[+] &f%s &7&o(현재 인원수: %d명)"), p.getName(), playersMap.size()));
+            broadcastToPlayers(
+                    String.format(translate("&a[+] &f%s &7&o(현재 인원수: %d명)"), p.getName(), playersMap.size()));
             if (canGameStart() && startCountDownTaskID == -1 && startTaskID == -1) {
                 broadcastToPlayers(translate("&a[!] &730초 후 게임이 &a시작&7됩니다."));
                 startCountDownTaskID = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
@@ -90,7 +91,8 @@ public class GameManager {
             playersMap.remove(p);
             playersList.remove(p);
             p.teleport(baseLocation);
-            broadcastToPlayers(String.format(translate("&c[-] &f%s &7&o(현재 인원수: %d명)"), p.getName(), playersMap.size()));
+            broadcastToPlayers(
+                    String.format(translate("&c[-] &f%s &7&o(현재 인원수: %d명)"), p.getName(), playersMap.size()));
             p.sendMessage(translate("&c[-] &7게임에서 퇴장하셨습니다."));
             if (!canGameStart() && startCountDownTaskID != -1 && startTaskID != -1) {
                 broadcastToPlayers(translate("&c[!] &7최소인원이 부족하여 게임이 &c취소&7됩니다."));
