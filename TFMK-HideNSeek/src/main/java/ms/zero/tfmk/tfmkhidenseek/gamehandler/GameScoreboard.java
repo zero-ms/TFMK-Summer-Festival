@@ -27,8 +27,8 @@ public class GameScoreboard {
 
         Score playerName = obj.getScore(String.format(translate("&e이름: %s"), player.getName()));
         Score playerRole = obj.getScore(String.format(translate("&b역할: %s"), GameManager.getRole(player)));
-        Score remainingTaggers = obj.getScore(String.format(translate("&c남은 술래: %d"), GameScore.getTaggerVolume()));
-        Score remainingRunners = obj.getScore(String.format(translate("&b남은 도망자: %d"), GameScore.getRunnerVolume()));
+        Score remainingTaggers = obj.getScore(String.format(translate("&c남은 술래: %d"), GameScore.getTagger()));
+        Score remainingRunners = obj.getScore(String.format(translate("&b남은 도망자: %d"), GameScore.getRunner()));
     }
 
     public void applyScoreboard() {

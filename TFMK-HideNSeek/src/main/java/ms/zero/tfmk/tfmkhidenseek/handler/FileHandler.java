@@ -43,10 +43,10 @@ public class FileHandler {
         try {
             Integer minPlayers = settingYaml.getInt("minPlayers");
             Integer leastTaggers = settingYaml.getInt("leastTaggers");
-            Integer needKeyVolume = settingYaml.getInt("needKeyVolume: 5");
+            Integer needKey = settingYaml.getInt("needKey: 5");
             GameRule.setMinPlayers(minPlayers);
             GameRule.setLeastTaggers(leastTaggers);
-            GameRule.setNeedKeyVolume(needKeyVolume);
+            GameRule.setNeedKey(needKey);
         } catch (Exception ex) {
             ex.printStackTrace();
             Bukkit.getConsoleSender().sendMessage(translate("&cconfig.yml 파일이 손상되었습니다. 개발자에게 문의하시시오."));

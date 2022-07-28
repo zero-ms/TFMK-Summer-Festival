@@ -9,4 +9,4 @@ commands:
     description: Hide and Seek game managing command.
   이스터에그:
     description: :)
-depend: [Citizens]
+depend: [Citizens, ProtocolLib]

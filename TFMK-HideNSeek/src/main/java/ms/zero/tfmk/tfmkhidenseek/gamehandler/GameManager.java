@@ -1,6 +1,10 @@
 package ms.zero.tfmk.tfmkhidenseek.gamehandler;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import ms.zero.tfmk.tfmkhidenseek.miscellaneous.Util;
+import ms.zero.tfmk.tfmkhidenseek.objects.GlowManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -10,10 +14,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static ms.zero.tfmk.tfmkhidenseek.gamehandler.GameRule.PlayerType;
 import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.GlobalVariable.*;
@@ -108,7 +111,7 @@ public class GameManager {
     }
 
     private static Boolean isGameCanPlayable() {
-        if (getRunnerVolume() == 0 || getTaggerVolume() == 0) {
+        if (getRunnerCount() == 0 || getTaggerCount() == 0) {
             return false;
         }
         return true;
@@ -138,24 +141,24 @@ public class GameManager {
         return playersList.contains(p) && playersMap.get(p) == PlayerType.RUNNER;
     }
 
-    private static Integer getTaggerVolume() {
-        int count = 0;
-        for (Player p : playersList) {
-            if (playersMap.get(p).equals(PlayerType.TAGGER)) {
-                count++;
-            }
-        }
-        return count;
+    public static Integer getTaggerCount() {
+        return getTagger().size();
     }
 
-    private static Integer getRunnerVolume() {
-        int count = 0;
-        for (Player p : playersList) {
-            if (playersMap.get(p).equals(PlayerType.RUNNER)) {
-                count++;
-            }
-        }
-        return count;
+    public static Integer getRunnerCount() {
+        return getRunner().size();
+    }
+
+    public static List<Player> getTagger() {
+        return playersMap.keySet().stream()
+                .filter(player -> playersMap.get(player).equals(PlayerType.TAGGER))
+                .collect(Collectors.toList());
+    }
+
+    public static List<Player> getRunner() {
+        return playersMap.keySet().stream()
+                .filter(player -> playersMap.get(player).equals(PlayerType.RUNNER))
+                .collect(Collectors.toList());
     }
 
     public static String getRole(Player p) {
@@ -163,39 +166,23 @@ public class GameManager {
     }
 
     private static void broadcastToPlayers(String msg) {
-        for (Player p : playersList) {
-            p.sendMessage(msg);
-        }
+        playersList.forEach(player -> player.sendMessage(msg));
     }
 
     private static void broadcastToPlayers(String title, String subTitle, int seconds) {
-        for (Player p : playersList) {
-            p.sendTitle(title, subTitle, 0, 20 * seconds, 0);
-        }
+        playersList.forEach(player -> player.sendTitle(title, subTitle, 0, 20 * seconds, 0));
     }
 
     private static void broadcastToTagger(String msg) {
-        for (Player p : playersList) {
-            if (playersMap.get(p).equals(PlayerType.TAGGER)) {
-                p.sendMessage(msg);
-            }
-        }
+        getTagger().forEach(player -> player.sendMessage(msg));
     }
 
     private static void broadcastToRunner(String msg) {
-        for (Player p : playersList) {
-            if (playersMap.get(p).equals(PlayerType.RUNNER)) {
-                p.sendMessage(msg);
-            }
-        }
+        getRunner().forEach(player -> player.sendMessage(msg));
     }
 
     private static void broadcastToRunner(String title, String subTitle, int seconds) {
-        for (Player p : playersList) {
-            if (playersMap.get(p).equals(PlayerType.RUNNER)) {
-                p.sendTitle(title, subTitle, 0, 20 * seconds, 0);
-            }
-        }
+        getRunner().forEach(player -> player.sendTitle(title, subTitle, 0, 20 * seconds, 0));
     }
 
     private static void initTagger() {
@@ -208,7 +195,7 @@ public class GameManager {
             playersMap.put(p, PlayerType.TAGGER);
             makeTagger(p);
         }
-        GameScore.initPlayersVolume(getTaggerVolume(), getRunnerVolume());
+        GameScore.initPlayers(getTaggerCount(), getRunnerCount());
         broadcastToRunner(translate("&a휴, 살았다!"), translate("&f당신은 도망자입니다. 술래로부터 도망가세요!"), 7);
     }
 
@@ -244,7 +231,7 @@ public class GameManager {
             makeTagger(p);
 
             GameScore.decreaseRunner();
-            for (int i = 0; i < GameScore.getPlayerPickedUpKeyVolume(p); i++) {
+            for (int i = 0; i < GameScore.getPlayerPickedUpKey(p); i++) {
                 KeyDropper.spawnKey();
             }
             GameScore.dropKey(p);
@@ -270,8 +257,6 @@ public class GameManager {
         // Teleport to lobby.
         // Steal tagger's item and clear potion effect.
         // Clear dropped items.
-        startCountDownTaskID = -1;
-        startTaskID = -1;
 
         clearTagger();
         clearRunner();
@@ -281,29 +266,25 @@ public class GameManager {
 
         playersMap.clear();
         playersList.clear();
+
+        startCountDownTaskID = -1;
+        startTaskID = -1;
     }
 
     private static void clearTagger() {
-        for (Player p : playersList) {
-            if (playersMap.get(p) == PlayerType.TAGGER) {
-                p.getInventory().setHelmet(new ItemStack(Material.AIR));
-                Util.removeItem(p, GOLDEN_HOE);
-
-                Util.removePotionEffects(p);
-
-                p.teleport(baseLocation);
-            }
-        }
+        getTagger().forEach(player -> {
+            player.getInventory().setHelmet(new ItemStack(Material.AIR));
+            Util.removeItem(player, GOLDEN_HOE);
+            Util.removePotionEffects(player);
+            player.teleport(baseLocation);
+        });
     }
 
     private static void clearRunner() {
-        for (Player p : playersList) {
-            if (playersMap.get(p) == PlayerType.RUNNER) {
-                Util.removeItem(p, KEY_PIECE);
-
-                p.teleport(baseLocation);
-            }
-        }
+        getRunner().forEach(player -> {
+            Util.removeItem(player, KEY_PIECE);
+            player.teleport(baseLocation);
+        });
     }
 
     private static void installBarrier() {
@@ -320,11 +301,22 @@ public class GameManager {
 
     private static void dropKeyPiece() {
         KeyDropper.spawnKey();
-        GameScore.setDroppedKeyVolume(GameScore.getDroppedKeyVolume() + 1);
+        GameScore.setDroppedKey(GameScore.getDroppedKey() + 1);
+    }
+
+    public static void makePlayerGlowing(Player p) {
+        GlowManager.add(p);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+            @Override
+            public void run() {
+                GlowManager.remove(p);
+            }
+        }, 20L * 10);
     }
 
     public static void pickUpKey(Player p) {
         GameScore.pickUpKey(p);
+        makePlayerGlowing(p);
     }
 
     private static Integer getRandomIndex() {

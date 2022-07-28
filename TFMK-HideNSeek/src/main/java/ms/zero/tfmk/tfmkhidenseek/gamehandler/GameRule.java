@@ -3,7 +3,7 @@ package ms.zero.tfmk.tfmkhidenseek.gamehandler;
 public class GameRule {
 	private static Integer minPlayers;
 	private static Integer leastTaggers;
-	private static Integer needKeyVolume;
+	private static Integer needKey;
 
 	public enum PlayerType {
 		RUNNER,
@@ -22,8 +22,8 @@ public class GameRule {
 	public static Integer getLeastTaggers() {
 		return leastTaggers;
 	}
-	public static Integer getNeedKeyVolume() {
-		return needKeyVolume;
+	public static Integer getNeedKey() {
+		return needKey;
 	}
 	public static void setMinPlayers(Integer i) {
 		minPlayers = i;
@@ -31,7 +31,7 @@ public class GameRule {
 	public static void setLeastTaggers(Integer i) {
 		leastTaggers = i;
 	}
-	public static void setNeedKeyVolume(Integer i) {
-		needKeyVolume = i;
+	public static void setNeedKey(Integer i) {
+		needKey = i;
 	}
 }
