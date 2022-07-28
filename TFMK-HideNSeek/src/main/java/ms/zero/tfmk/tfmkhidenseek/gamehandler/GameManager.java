@@ -1,10 +1,9 @@
 package ms.zero.tfmk.tfmkhidenseek.gamehandler;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import ms.zero.tfmk.tfmkhidenseek.miscellaneous.Util;
 import ms.zero.tfmk.tfmkhidenseek.objects.GlowManager;
+import ms.zero.tfmk.tfmkhidenseek.objects.NPCManager;
+import ms.zero.tfmk.tfmkhidenseek.objects.NameTagManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -14,7 +13,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,6 +29,8 @@ public class GameManager {
     private static Location[] barrierLocation = new Location[30];
     private static Location baseLocation = new Location(Bukkit.getWorld("world"), 283.5, 76, -94.5, 180, 5);
     private static Location startLocation = new Location(Bukkit.getWorld("world"), 283.5, 76, -104.5, 180, 5);
+
+    private static Location resultLocation = new Location(Bukkit.getWorld("world"), 283.5, 84, -106.5);
 
     static {
         World world = Bukkit.getWorld("world");
@@ -259,10 +259,10 @@ public class GameManager {
         // Teleport to lobby.
         // Steal tagger's item and clear potion effect.
         // Clear dropped items.
+        NameTagManager.showNameTag(playersList);
 
-        clearTagger();
-        clearRunner();
         installBarrier();
+        playersList.forEach(player -> player.teleport(baseLocation));
 
         KeyDropper.reset();
 
@@ -278,14 +278,12 @@ public class GameManager {
             player.getInventory().setHelmet(new ItemStack(Material.AIR));
             Util.removeItem(player, GOLDEN_HOE);
             Util.removePotionEffects(player);
-            player.teleport(baseLocation);
         });
     }
 
     private static void clearRunner() {
         getRunner().forEach(player -> {
             Util.removeItem(player, KEY_PIECE);
-            player.teleport(baseLocation);
         });
     }
 
@@ -365,6 +363,20 @@ public class GameManager {
         }
     }
 
+    private static void showStatistics() {
+        clearTagger();
+        clearRunner();
+        playersList.forEach(player -> player.teleport(resultLocation));
+        NPCManager.showNPC(playersList);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+            @Override
+            public void run() {
+                NPCManager.removeNPC();
+            }
+        }, 20L * 30);
+        //hologram managers
+    }
+
     private static void ending() {
         if (isGameCanPlayable()) {
             // Runner WIN
@@ -373,16 +385,19 @@ public class GameManager {
             // Tagger WIN
             broadcastToPlayers(translate("&e게임 종료!"), translate("&c술래가 도망자들을 전부 고기로 만들어버렸습니다..."), 10);
         }
+        showStatistics();
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
             public void run() {
                 finalizeGame();
             }
-        }, 20L * 10);
+        }, 20L * 40);
     }
 
     public static void startGame() {
         gameStarted = true;
+
+        NameTagManager.hideNameTag(playersList);
 
         if (gameStarted) {
             initScore();

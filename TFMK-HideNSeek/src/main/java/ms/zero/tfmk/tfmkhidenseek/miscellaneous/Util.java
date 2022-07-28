@@ -1,35 +1,35 @@
 package ms.zero.tfmk.tfmkhidenseek.miscellaneous;
 
+import com.comphenix.packetwrapper.*;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.events.PacketListener;
-import com.comphenix.protocol.wrappers.PlayerInfoData;
-import com.comphenix.protocol.wrappers.WrappedChatComponent;
-import com.comphenix.protocol.wrappers.WrappedDataWatcher;
-import com.comphenix.protocol.wrappers.WrappedGameProfile;
-import com.comphenix.protocol.wrappers.WrappedWatchableObject;
+import com.comphenix.protocol.wrappers.*;
 import com.comphenix.protocol.wrappers.EnumWrappers.NativeGameMode;
 import com.comphenix.protocol.wrappers.EnumWrappers.PlayerInfoAction;
 import com.comphenix.protocol.wrappers.EnumWrappers.ScoreboardAction;
 
+import ms.zero.tfmk.tfmkhidenseek.objects.NameTagManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-
-import com.comphenix.packetwrapper.WrapperPlayServerScoreboardTeam;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 
 import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.GlobalVariable.*;
 
 public class Util {
+    private static AtomicInteger entityIDGenerator = new AtomicInteger(-1);
+
     public static String translate(String msg) {
         return ChatColor.translateAlternateColorCodes('&', msg);
     }
@@ -50,41 +50,76 @@ public class Util {
         }
     }
 
+    public static void spawnArmorStand(String text) {
+        WrapperPlayServerSpawnEntity spawnEntity = new WrapperPlayServerSpawnEntity();
+        spawnEntity.setEntityID(entityIDGenerator.decrementAndGet());
+        spawnEntity.setType(EntityType.ARMOR_STAND);
+        UUID uuid = UUID.randomUUID();
+        spawnEntity.setUniqueId(uuid);
+        Player p = Bukkit.getPlayer("Bamboo_Photo");
+        spawnEntity.setX(p.getLocation().getX());
+        spawnEntity.setY(p.getLocation().getY());
+        spawnEntity.setZ(p.getLocation().getZ());
+        spawnEntity.setPitch(0.0f);
+        spawnEntity.setYaw(0.0f);
+        spawnEntity.sendPacket(p);
+
+        WrapperPlayServerEntityMetadata metadata = new WrapperPlayServerEntityMetadata();
+        WrappedDataWatcher watcher = new WrappedDataWatcher();
+        Optional<?> opt = Optional
+                .of(WrappedChatComponent.fromText(text).getHandle());
+        watcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(0, WrappedDataWatcher.Registry.get(Byte.class)), (byte) 0x20);
+        watcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(2, WrappedDataWatcher.Registry.getChatComponentSerializer(true)), opt);
+        watcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(3, WrappedDataWatcher.Registry.get(Boolean.class)), true);
+        watcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(14, WrappedDataWatcher.Registry.get(Byte.class)), (byte) (0x01 | 0x08 | 0x10));
+        metadata.setMetadata(watcher.getWatchableObjects());
+        metadata.setEntityID(entityIDGenerator.get());
+        metadata.sendPacket(p);
+    }
+
     public static void spawnNPC() {
-        Player targetPlayer = Bukkit.getPlayer("Bamboo_Photo");
-        PacketContainer container = pm.createPacket(PacketType.Play.Server.PLAYER_INFO);
+        Player p = Bukkit.getPlayer("Bamboo_Photo");
+        WrapperPlayServerPlayerInfo playerInfo = new WrapperPlayServerPlayerInfo();
+        UUID uuid = p.getUniqueId();
+        WrappedGameProfile profile = new WrappedGameProfile(uuid, p.getName());
+        int latency = 10;
+        PlayerInfoData data = new PlayerInfoData(profile, latency, EnumWrappers.NativeGameMode.CREATIVE,
+                WrappedChatComponent.fromText(p.getName()));
+        playerInfo.setAction(EnumWrappers.PlayerInfoAction.ADD_PLAYER);
+        playerInfo.setData(Arrays.asList(data));
+        playerInfo.sendPacket(p);
 
-        WrappedGameProfile profile = new WrappedGameProfile(UUID.randomUUID(), "testNPC");
-        int latency = 150;
-        PlayerInfoData data = new PlayerInfoData(profile, latency, NativeGameMode.CREATIVE,
-                WrappedChatComponent.fromText("testNPC"));
+        WrapperPlayServerNamedEntitySpawn entitySpawn = new WrapperPlayServerNamedEntitySpawn();
+        entitySpawn.setEntityID(entityIDGenerator.decrementAndGet());
+        entitySpawn.setPlayerUUID(uuid);
+        entitySpawn.setX(282.5);
+        entitySpawn.setY(84);
+        entitySpawn.setZ(-101.5);
+        entitySpawn.setYaw(180.0f);
+        entitySpawn.setPitch(0.0f);
+        entitySpawn.sendPacket(p);
 
-        container.getPlayerInfoAction().write(0, PlayerInfoAction.ADD_PLAYER);
-        container.getPlayerInfoDataLists().write(0, Arrays.asList(data));
+        WrapperPlayServerEntityHeadRotation headRotation = new WrapperPlayServerEntityHeadRotation();
+        headRotation.setEntityID(entityIDGenerator.get());
+        headRotation.setHeadYaw(getHeadYaw(135.0f));
+        headRotation.sendPacket(p);
 
-        try {
-            pm.sendServerPacket(targetPlayer, container);
-        } catch (InvocationTargetException ex) {
-            ex.printStackTrace();
-        }
+        WrapperPlayServerEntityMetadata metaData = new WrapperPlayServerEntityMetadata();
+        metaData.setEntityID(entityIDGenerator.get());
+        WrappedDataWatcher watcher = new WrappedDataWatcher();
+        WrappedDataWatcher.Serializer serializer = WrappedDataWatcher.Registry.get(Byte.class);
+        watcher.setObject(16, serializer, (byte) (0x01 | 0x02 | 0x04 | 0x08 | 0x10 | 0x20 | 0x40));
+        metaData.setMetadata(watcher.getWatchableObjects());
+        metaData.sendPacket(p);
+
+        WrapperPlayServerAnimation animation = new WrapperPlayServerAnimation();
+        animation.setEntityID(entityIDGenerator.get());
+        animation.setAnimation(0);
+        animation.sendPacket(p);
+
+        NameTagManager.hideNameTag(p, p.getName());
     }
-
-    public static void spawnArmorStand() {
-
-    }
-
-    public static void removeNameTag() {
-        Player p1 = Bukkit.getPlayer("Bamboo_Photo");
-        Player p2 = Bukkit.getPlayer("LukasCZzero");
-
-        WrapperPlayServerScoreboardTeam wrapper = new WrapperPlayServerScoreboardTeam();
-        wrapper.setDisplayName(WrappedChatComponent.fromText("testTeam"));
-        wrapper.setNameTagVisibility("never");
-        int data = wrapper.getPackOptionData() | 1;
-        wrapper.setPackOptionData(data);
-        wrapper.setPlayers(Arrays.asList(p1.getUniqueId().toString(), p2.getUniqueId().toString()));
-        wrapper.setMode(0);
-        wrapper.broadcastPacket();
-
+    private static Byte getHeadYaw(Float yaw) {
+        return (byte) ((yaw + 45f) * 256.0F / 360.0F);
     }
 }

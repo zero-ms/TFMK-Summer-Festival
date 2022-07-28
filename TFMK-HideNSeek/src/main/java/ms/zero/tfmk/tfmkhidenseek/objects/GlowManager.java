@@ -29,7 +29,7 @@ public class GlowManager {
                             WrappedDataWatcher watcher = new WrappedDataWatcher(
                                     event.getPacket().getWatchableCollectionModifier().read(0));
                             WrappedDataWatcher.Serializer serializer = WrappedDataWatcher.Registry.get(Byte.class);
-                            watcher.setObject(0, serializer, (byte) (0x40));
+                            watcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(0, serializer), (byte) (0x40));
                             event.getPacket().getWatchableCollectionModifier().write(0, watcher.getWatchableObjects());
                         }
                     }
@@ -55,7 +55,7 @@ public class GlowManager {
         WrappedDataWatcher watcher = new WrappedDataWatcher();
         WrappedDataWatcher.Serializer serializer = WrappedDataWatcher.Registry.get(Byte.class);
         watcher.setEntity(p);
-        watcher.setObject(0, serializer, (byte) (0x40));
+        watcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(0, serializer), (byte) (0x40));
         container.getWatchableCollectionModifier().write(0, watcher.getWatchableObjects());
 
         GameManager.getTagger().forEach(player -> {
@@ -73,7 +73,7 @@ public class GlowManager {
         WrappedDataWatcher watcher = new WrappedDataWatcher();
         WrappedDataWatcher.Serializer serializer = WrappedDataWatcher.Registry.get(Byte.class);
         watcher.setEntity(p);
-        watcher.setObject(0, serializer, (byte) (0));
+        watcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(0, serializer), (byte) (0));
         container.getWatchableCollectionModifier().write(0, watcher.getWatchableObjects());
 
         GameManager.getTagger().forEach(player -> {

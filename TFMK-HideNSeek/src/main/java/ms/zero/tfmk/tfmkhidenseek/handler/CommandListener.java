@@ -8,6 +8,7 @@ import ms.zero.tfmk.tfmkhidenseek.gamehandler.GameManager;
 import ms.zero.tfmk.tfmkhidenseek.gamehandler.GameScore;
 import ms.zero.tfmk.tfmkhidenseek.gamehandler.KeyDropper;
 import ms.zero.tfmk.tfmkhidenseek.miscellaneous.Util;
+import ms.zero.tfmk.tfmkhidenseek.objects.NPCManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -35,12 +36,15 @@ public class CommandListener implements CommandExecutor {
                             String.format(translate("&c[DEBUG] &7drop_key: %d pick_key: %d tagger: %d runner: %d"),
                                     GameScore.getDroppedKey(), GameScore.getPickedUpKey(), GameScore.getTagger(),
                                     GameScore.getRunner()));
+                } else if (args[0].equalsIgnoreCase("ar")) {
+                    StringBuilder b = new StringBuilder();
+                    for (int i = 1; i < args.length; i++) {
+                        b.append(args[i]).append(" ");
+                    }
+                    b.deleteCharAt(b.length()-1);
+                    Util.spawnArmorStand(translate(b.toString()));
                 } else if (args[0].equalsIgnoreCase("npc")) {
                     Util.spawnNPC();
-                } else if (args[0].equalsIgnoreCase("armorstand")) {
-                    Util.spawnArmorStand();
-                } else if (args[0].equalsIgnoreCase("nametag")) {
-                    Util.removeNameTag();
                 }
             }
             return true;

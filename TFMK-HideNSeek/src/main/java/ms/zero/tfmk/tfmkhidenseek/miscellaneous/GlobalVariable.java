@@ -11,10 +11,12 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.Util.translate;
 
 public class GlobalVariable {
+    public static AtomicInteger entityIDGenerator = new AtomicInteger(-1);
     public static ItemStack PUMPKIN_HELMET;
     public static ItemStack GOLDEN_HOE;
     public static ItemStack KEY_PIECE;
