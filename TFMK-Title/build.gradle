@@ -2,7 +2,6 @@ plugins {
     id 'java'
 }
 
-
 group = 'ms.zero.tfmk'
 version = '1.0-SNAPSHOT'
 
@@ -13,23 +12,13 @@ repositories {
         url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
     }
     maven {
-        name = 'everything'
-        url = 'https://repo.citizensnpcs.co/'
-    }
-    maven {
         name = 'sonatype'
         url = 'https://oss.sonatype.org/content/groups/public/'
-    }
-    maven {
-        name = 'dmulloy2-repo'
-        url = 'https://repo.dmulloy2.net/repository/public/'
     }
 }
 
 dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
-    compileOnly 'net.citizensnpcs:citizens-main:2.0.30-SNAPSHOT'
-    compileOnly 'com.comphenix.protocol:ProtocolLib:4.7.0'
 }
 
 def targetJavaVersion = 8

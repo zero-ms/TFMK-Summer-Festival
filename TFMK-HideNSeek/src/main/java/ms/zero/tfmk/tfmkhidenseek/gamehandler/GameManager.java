@@ -2,6 +2,7 @@ package ms.zero.tfmk.tfmkhidenseek.gamehandler;
 
 import ms.zero.tfmk.tfmkhidenseek.miscellaneous.Util;
 import ms.zero.tfmk.tfmkhidenseek.objects.GlowManager;
+import ms.zero.tfmk.tfmkhidenseek.objects.HologramManager;
 import ms.zero.tfmk.tfmkhidenseek.objects.NPCManager;
 import ms.zero.tfmk.tfmkhidenseek.objects.NameTagManager;
 import org.bukkit.Bukkit;
@@ -363,6 +364,7 @@ public class GameManager {
         clearRunner();
         gamePlayers.forEach(player -> player.teleport(resultLocation));
         NPCManager.showNPC(gamePlayers);
+        gamePlayers.forEach(player -> showRankingHologram(player));
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
             public void run() {
@@ -372,8 +374,10 @@ public class GameManager {
         //hologram managers
     }
 
-    private static void showRankingHologram() {
-
+    private static void showRankingHologram(Player player) {
+        HologramManager.createHologram(player, new Location(world, 282.5, 86, -101.5), "test1");
+        HologramManager.createHologram(player, new Location(world, 282.5, 86.35, -101.5), "test2");
+        HologramManager.createHologram(player, new Location(world, 282.5, 86.7, -101.5), "test3");
     }
 
     private static void ending() {

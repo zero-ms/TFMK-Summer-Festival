@@ -3,6 +3,9 @@ package ms.zero.tfmk.tfmkhidenseek.objects;
 import com.comphenix.packetwrapper.WrapperPlayServerEntityDestroy;
 import com.comphenix.packetwrapper.WrapperPlayServerEntityMetadata;
 import com.comphenix.packetwrapper.WrapperPlayServerSpawnEntity;
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import org.bukkit.Location;
@@ -15,7 +18,15 @@ import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.GlobalVariable.entityIDGe
 
 public class HologramManager {
     private static ArrayList<Integer> entityIDs = new ArrayList<>();
-
+    private static PacketAdapter test;
+    static {
+        test = new PacketAdapter(plugin, PacketType.Play.Server.) {
+            @Override
+            public void onPacketReceiving(PacketEvent event) {
+                super.onPacketReceiving(event);
+            }
+        }
+    }
     public static void createHologram(Player player, Location location, String text) {
         WrapperPlayServerSpawnEntity spawnEntity = new WrapperPlayServerSpawnEntity();
         entityIDs.add(entityIDGenerator.decrementAndGet());

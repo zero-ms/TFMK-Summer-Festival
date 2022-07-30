@@ -4,12 +4,18 @@ import ms.zero.tfmk.tfmkhidenseek.gamehandler.GameManager;
 import ms.zero.tfmk.tfmkhidenseek.gamehandler.GameScore;
 import ms.zero.tfmk.tfmkhidenseek.miscellaneous.Util;
 import ms.zero.tfmk.tfmkhidenseek.objects.HologramManager;
+import ms.zero.tfmk.tfmkhidenseek.objects.NPCManager;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Arrays;
+import java.util.List;
+
+import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.GlobalVariable.world;
 import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.Util.translate;
 
 public class CommandListener implements CommandExecutor {
@@ -38,6 +44,19 @@ public class CommandListener implements CommandExecutor {
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         HologramManager.createHologram(player, player.getLocation(), player.getName());
                     }
+                } else if (args[0].equalsIgnoreCase("st")) {
+                    NPCManager.showNPC(Arrays.asList(commandSender));
+                    HologramManager.createHologram(commandSender, new Location(world, 282.5, 86, -101.5), translate("&f처음 역할: &a도망자"));
+                    HologramManager.createHologram(commandSender, new Location(world, 282.5, 86.35, -101.5), translate("&f최종 역할: &c술래"));
+                    HologramManager.createHologram(commandSender, new Location(world, 282.5, 86.7, -101.5), translate("&f획득한 키: &32&f개"));
+                    HologramManager.createHologram(commandSender, new Location(world, 282.5, 87.05, -101.5), translate("&c죽인 사람: &41&f명"));
+                    HologramManager.createHologram(commandSender, new Location(world, 285, 84.6, -101.5), translate("7&o(클릭하여 전환)"));
+                    HologramManager.createHologram(commandSender, new Location(world, 285, 85, -101.5), translate("&7#5 &f &fBamboo_Photo &8&o(1명)"));
+                    HologramManager.createHologram(commandSender, new Location(world, 285, 85.35, -101.5), translate("&7#4 &f &fLukasCZZero &8&o(2명)"));
+                    HologramManager.createHologram(commandSender, new Location(world, 285, 85.7, -101.5), translate("&7#3 &f &bchanchani &8&o(5명)"));
+                    HologramManager.createHologram(commandSender, new Location(world, 285, 86.05, -101.5), translate("&7#2 &f &dLov_vol &8&o(10명)"));
+                    HologramManager.createHologram(commandSender, new Location(world, 285, 86.4, -101.5), translate("&7#1 &f &eTFMK-Master &8&o(11명)"));
+                    HologramManager.createHologram(commandSender, new Location(world, 285, 86.9, -101.5), translate("&7===== (&c킬 랭킹&7) ====="));
                 }
             }
             return true;
