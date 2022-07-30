@@ -2,81 +2,79 @@ package ms.zero.tfmk.tfmkhidenseek.objects;
 
 import com.comphenix.packetwrapper.*;
 import com.comphenix.protocol.wrappers.*;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.GlobalVariable.entityIDGenerator;
 
 public class NPCManager {
-    private static HashMap<Player, Integer> entityIDMap = new HashMap<>();
-    private static ArrayList<Player> playerList;
+    private static HashMap<Player, Integer> playerToEntityID = new HashMap<>();
+    private static ArrayList<Player> players;
 
-    public static void showNPC(List<Player> list) {
-        playerList = new ArrayList<>(list);
-        list.forEach(player -> entityIDMap.put(player, entityIDGenerator.decrementAndGet()));
+    public static void showNPC(List<Player> players) {
+        NPCManager.players = new ArrayList<>(players);
+        players.forEach(player -> playerToEntityID.put(player, entityIDGenerator.decrementAndGet()));
         showMirroringNPC();
     }
 
     public static void removeNPC() {
         removeMirroringNPC();
-        entityIDMap.clear();
-        playerList.clear();
+        playerToEntityID.clear();
+        players.clear();
     }
 
     private static void showMirroringNPC() {
-        for (Player p : playerList) {
+        for (Player player : players) {
             WrapperPlayServerPlayerInfo playerInfo = new WrapperPlayServerPlayerInfo();
-            UUID uuid = p.getUniqueId();
-            WrappedGameProfile profile = new WrappedGameProfile(uuid, p.getName());
+            UUID uuid = player.getUniqueId();
+            WrappedGameProfile gameProfile = new WrappedGameProfile(uuid, player.getName());
             int latency = 10;
-            PlayerInfoData data = new PlayerInfoData(profile, latency, EnumWrappers.NativeGameMode.CREATIVE,
-                    WrappedChatComponent.fromText(p.getName()));
+            PlayerInfoData playerInfoData = new PlayerInfoData(gameProfile, latency, EnumWrappers.NativeGameMode.CREATIVE,
+                    WrappedChatComponent.fromText(player.getName()));
             playerInfo.setAction(EnumWrappers.PlayerInfoAction.ADD_PLAYER);
-            playerInfo.setData(Arrays.asList(data));
-            playerInfo.sendPacket(p);
+            playerInfo.setData(Arrays.asList(playerInfoData));
+            playerInfo.sendPacket(player);
 
-            WrapperPlayServerNamedEntitySpawn entitySpawn = new WrapperPlayServerNamedEntitySpawn();
-            entitySpawn.setEntityID(entityIDMap.get(p));
-            entitySpawn.setPlayerUUID(uuid);
-            entitySpawn.setX(282.5);
-            entitySpawn.setY(84);
-            entitySpawn.setZ(-101.5);
-            entitySpawn.setYaw(180.0f);
-            entitySpawn.setPitch(0.0f);
-            entitySpawn.sendPacket(p);
+            WrapperPlayServerNamedEntitySpawn namedEntitySpawn = new WrapperPlayServerNamedEntitySpawn();
+            namedEntitySpawn.setEntityID(playerToEntityID.get(player));
+            namedEntitySpawn.setPlayerUUID(uuid);
+            namedEntitySpawn.setX(282.5);
+            namedEntitySpawn.setY(84);
+            namedEntitySpawn.setZ(-101.5);
+            namedEntitySpawn.setYaw(180.0f);
+            namedEntitySpawn.setPitch(0.0f);
+            namedEntitySpawn.sendPacket(player);
 
-            WrapperPlayServerEntityHeadRotation headRotation = new WrapperPlayServerEntityHeadRotation();
-            headRotation.setEntityID(entityIDMap.get(p));
-            headRotation.setHeadYaw(getHeadYaw(135.0f));
-            headRotation.sendPacket(p);
+            WrapperPlayServerEntityHeadRotation entityHeadRotation = new WrapperPlayServerEntityHeadRotation();
+            entityHeadRotation.setEntityID(playerToEntityID.get(player));
+            entityHeadRotation.setHeadYaw(getHeadYaw(135.0f));
+            entityHeadRotation.sendPacket(player);
 
-            WrapperPlayServerEntityMetadata metaData = new WrapperPlayServerEntityMetadata();
-            metaData.setEntityID(entityIDMap.get(p));
+            WrapperPlayServerEntityMetadata entityMetadata = new WrapperPlayServerEntityMetadata();
+            entityMetadata.setEntityID(playerToEntityID.get(player));
             WrappedDataWatcher watcher = new WrappedDataWatcher();
             WrappedDataWatcher.Serializer serializer = WrappedDataWatcher.Registry.get(Byte.class);
             watcher.setObject(16, serializer, (byte) (0x01 | 0x02 | 0x04 | 0x08 | 0x10 | 0x20 | 0x40));
-            metaData.setMetadata(watcher.getWatchableObjects());
-            metaData.sendPacket(p);
+            entityMetadata.setMetadata(watcher.getWatchableObjects());
+            entityMetadata.sendPacket(player);
 
             WrapperPlayServerAnimation animation = new WrapperPlayServerAnimation();
-            animation.setEntityID(entityIDMap.get(p));
+            animation.setEntityID(playerToEntityID.get(player));
             animation.setAnimation(0);
-            animation.sendPacket(p);
+            animation.sendPacket(player);
 
-            NameTagManager.hideNameTag(p, p.getName());
+            NameTagManager.hideNameTag(player, player.getName());
         }
     }
 
     private static void removeMirroringNPC() {
-        for (Player p : playerList) {
-            NameTagManager.showNameTag(p, p.getName());
-            WrapperPlayServerEntityDestroy destroyEntity = new WrapperPlayServerEntityDestroy();
-            destroyEntity.setEntityIds(IntStream.of(entityIDMap.get(p)).toArray());
-            destroyEntity.sendPacket(p);
+        for (Player player : players) {
+            NameTagManager.showNameTag(player, player.getName());
+            WrapperPlayServerEntityDestroy entityDestroy = new WrapperPlayServerEntityDestroy();
+            entityDestroy.setEntityIds(IntStream.of(playerToEntityID.get(player)).toArray());
+            entityDestroy.sendPacket(player);
         }
     }
 

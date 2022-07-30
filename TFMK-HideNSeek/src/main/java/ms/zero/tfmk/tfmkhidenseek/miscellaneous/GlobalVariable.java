@@ -2,7 +2,6 @@ package ms.zero.tfmk.tfmkhidenseek.miscellaneous;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
-import com.comphenix.protocol.events.PacketAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -45,5 +44,5 @@ public class GlobalVariable {
     }
     public static Plugin plugin;
     public static World world = Bukkit.getWorld("world");
-    public static ProtocolManager pm = ProtocolLibrary.getProtocolManager();
+    public static ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
 }

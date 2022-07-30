@@ -10,64 +10,64 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class NameTagManager {
-    public static void hideNameTag(List<Player> playerList) {
-        ArrayList<String> playersNameList = new ArrayList<>();
-        playerList.forEach(player -> {
-            playersNameList.add(player.getName());
+    public static void hideNameTag(List<Player> players) {
+        ArrayList<String> playerNames = new ArrayList<>();
+        players.forEach(player -> {
+            playerNames.add(player.getName());
         });
-        for (Player p : playerList) {
-            WrapperPlayServerScoreboardTeam wrapper = new WrapperPlayServerScoreboardTeam();
-            wrapper.setName("hidenseek-team");
-            wrapper.setDisplayName(WrappedChatComponent.fromText(""));
-            wrapper.setNameTagVisibility("never");
-            wrapper.setMode(WrapperPlayServerScoreboardTeam.Mode.TEAM_CREATED);
-            wrapper.setCollisionRule("always");
-            wrapper.sendPacket(p);
+        for (Player player : players) {
+            WrapperPlayServerScoreboardTeam scoreboardTeam = new WrapperPlayServerScoreboardTeam();
+            scoreboardTeam.setName("hidenseek-team");
+            scoreboardTeam.setDisplayName(WrappedChatComponent.fromText(""));
+            scoreboardTeam.setNameTagVisibility("never");
+            scoreboardTeam.setMode(WrapperPlayServerScoreboardTeam.Mode.TEAM_CREATED);
+            scoreboardTeam.setCollisionRule("always");
+            scoreboardTeam.sendPacket(player);
 
-            wrapper = new WrapperPlayServerScoreboardTeam();
-            wrapper.setName("hidenseek-team");
-            wrapper.setMode(WrapperPlayServerScoreboardTeam.Mode.PLAYERS_ADDED);
-            wrapper.setPlayers(playersNameList.stream().filter(s -> !p.getName().equals(s)).collect(Collectors.toList()));
-            wrapper.sendPacket(p);
+            scoreboardTeam = new WrapperPlayServerScoreboardTeam();
+            scoreboardTeam.setName("hidenseek-team");
+            scoreboardTeam.setMode(WrapperPlayServerScoreboardTeam.Mode.PLAYERS_ADDED);
+            scoreboardTeam.setPlayers(playerNames.stream().filter(s -> !player.getName().equals(s)).collect(Collectors.toList()));
+            scoreboardTeam.sendPacket(player);
         }
     }
 
-    public static void showNameTag(List<Player> playerList) {
+    public static void showNameTag(List<Player> players) {
         ArrayList<String> playersNameList = new ArrayList<>();
-        playerList.forEach(player -> {
+        players.forEach(player -> {
             playersNameList.add(player.getName());
         });
-        for (Player p : playerList) {
-            WrapperPlayServerScoreboardTeam wrapper = new WrapperPlayServerScoreboardTeam();
-            wrapper.setName("hidenseek-team");
-            wrapper.setMode(WrapperPlayServerScoreboardTeam.Mode.PLAYERS_REMOVED);
-            wrapper.setPlayers(playersNameList.stream().filter(s -> !p.getName().equals(s)).collect(Collectors.toList()));
-            wrapper.sendPacket(p);
+        for (Player player : players) {
+            WrapperPlayServerScoreboardTeam scoreboardTeam = new WrapperPlayServerScoreboardTeam();
+            scoreboardTeam.setName("hidenseek-team");
+            scoreboardTeam.setMode(WrapperPlayServerScoreboardTeam.Mode.PLAYERS_REMOVED);
+            scoreboardTeam.setPlayers(playersNameList.stream().filter(s -> !player.getName().equals(s)).collect(Collectors.toList()));
+            scoreboardTeam.sendPacket(player);
         }
     }
 
     public static void hideNameTag(Player targetPlayer, String name) {
-        WrapperPlayServerScoreboardTeam wrapper = new WrapperPlayServerScoreboardTeam();
-        wrapper.setName("hidenseek-team");
-        wrapper.setDisplayName(WrappedChatComponent.fromText(""));
-        wrapper.setNameTagVisibility("never");
-        wrapper.setMode(WrapperPlayServerScoreboardTeam.Mode.TEAM_CREATED);
-        wrapper.setCollisionRule("always");
-        wrapper.sendPacket(targetPlayer);
+        WrapperPlayServerScoreboardTeam scoreboardTeam = new WrapperPlayServerScoreboardTeam();
+        scoreboardTeam.setName("hidenseek-team");
+        scoreboardTeam.setDisplayName(WrappedChatComponent.fromText(""));
+        scoreboardTeam.setNameTagVisibility("never");
+        scoreboardTeam.setMode(WrapperPlayServerScoreboardTeam.Mode.TEAM_CREATED);
+        scoreboardTeam.setCollisionRule("always");
+        scoreboardTeam.sendPacket(targetPlayer);
 
-        wrapper = new WrapperPlayServerScoreboardTeam();
-        wrapper.setName("hidenseek-team");
-        wrapper.setMode(WrapperPlayServerScoreboardTeam.Mode.PLAYERS_ADDED);
-        wrapper.setPlayers(Arrays.asList(name));
-        wrapper.sendPacket(targetPlayer);
+        scoreboardTeam = new WrapperPlayServerScoreboardTeam();
+        scoreboardTeam.setName("hidenseek-team");
+        scoreboardTeam.setMode(WrapperPlayServerScoreboardTeam.Mode.PLAYERS_ADDED);
+        scoreboardTeam.setPlayers(Arrays.asList(name));
+        scoreboardTeam.sendPacket(targetPlayer);
 
     }
 
     public static void showNameTag(Player targetPlayer, String name) {
-        WrapperPlayServerScoreboardTeam wrapper = new WrapperPlayServerScoreboardTeam();
-        wrapper.setName("hidenseek-team");
-        wrapper.setMode(WrapperPlayServerScoreboardTeam.Mode.PLAYERS_REMOVED);
-        wrapper.setPlayers(Arrays.asList(name));
-        wrapper.sendPacket(targetPlayer);
+        WrapperPlayServerScoreboardTeam scoreboardTeam = new WrapperPlayServerScoreboardTeam();
+        scoreboardTeam.setName("hidenseek-team");
+        scoreboardTeam.setMode(WrapperPlayServerScoreboardTeam.Mode.PLAYERS_REMOVED);
+        scoreboardTeam.setPlayers(Arrays.asList(name));
+        scoreboardTeam.sendPacket(targetPlayer);
     }
 }

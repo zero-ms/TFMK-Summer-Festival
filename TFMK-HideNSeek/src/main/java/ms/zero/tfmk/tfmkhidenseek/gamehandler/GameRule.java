@@ -27,15 +27,15 @@ public class GameRule {
         return needKey;
     }
 
-    public static void setMinPlayers(Integer i) {
-        minPlayers = i;
+    public static void setMinPlayers(Integer minPlayers) {
+        GameRule.minPlayers = minPlayers;
     }
 
-    public static void setLeastTaggers(Integer i) {
-        leastTaggers = i;
+    public static void setLeastTaggers(Integer leastTaggers) {
+        GameRule.leastTaggers = leastTaggers;
     }
 
-    public static void setNeedKey(Integer i) {
-        needKey = i;
+    public static void setNeedKey(Integer needKey) {
+        GameRule.needKey = needKey;
     }
 }

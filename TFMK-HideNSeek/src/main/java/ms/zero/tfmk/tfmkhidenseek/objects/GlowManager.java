@@ -6,79 +6,78 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import ms.zero.tfmk.tfmkhidenseek.gamehandler.GameManager;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.GlobalVariable.plugin;
-import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.GlobalVariable.pm;
+import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.GlobalVariable.protocolManager;
 
 public class GlowManager {
-    private static ArrayList<Integer> glowedEntityIDList = new ArrayList<>();
+    private static ArrayList<Integer> glowedEntityIDs = new ArrayList<>();
     private static PacketAdapter glowingListener;
 
     static {
         glowingListener = new PacketAdapter(plugin, PacketType.Play.Server.ENTITY_METADATA) {
             @Override
-            public void onPacketSending(PacketEvent event) {
-                if (GameManager.isTagger(event.getPlayer())) {
-                    if (glowedEntityIDList.contains(event.getPacket().getIntegers().read(0))) {
-                        if (event.getPacketType() == PacketType.Play.Server.ENTITY_METADATA) {
-                            WrappedDataWatcher watcher = new WrappedDataWatcher(
-                                    event.getPacket().getWatchableCollectionModifier().read(0));
+            public void onPacketSending(PacketEvent packetEvent) {
+                if (GameManager.isTagger(packetEvent.getPlayer())) {
+                    if (glowedEntityIDs.contains(packetEvent.getPacket().getIntegers().read(0))) {
+                        if (packetEvent.getPacketType() == PacketType.Play.Server.ENTITY_METADATA) {
+                            WrappedDataWatcher dataWatcher = new WrappedDataWatcher(
+                                    packetEvent.getPacket().getWatchableCollectionModifier().read(0));
                             WrappedDataWatcher.Serializer serializer = WrappedDataWatcher.Registry.get(Byte.class);
-                            watcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(0, serializer), (byte) (0x40));
-                            event.getPacket().getWatchableCollectionModifier().write(0, watcher.getWatchableObjects());
+                            dataWatcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(0, serializer), (byte) (0x40));
+                            packetEvent.getPacket().getWatchableCollectionModifier().write(0, dataWatcher.getWatchableObjects());
                         }
                     }
                 }
             }
         };
-        pm.addPacketListener(glowingListener);
+        protocolManager.addPacketListener(glowingListener);
     }
 
-    public static void add(Player p) {
-        glowedEntityIDList.add(p.getEntityId());
-        makePlayerGlowing(p);
+    public static void add(Player player) {
+        glowedEntityIDs.add(player.getEntityId());
+        makePlayerGlowing(player);
     }
 
-    public static void remove(Player p) {
-        glowedEntityIDList.remove(Integer.valueOf(p.getEntityId()));
-        removePlayerGlowing(p);
+    public static void remove(Player player) {
+        glowedEntityIDs.remove(Integer.valueOf(player.getEntityId()));
+        removePlayerGlowing(player);
     }
 
-    private static void makePlayerGlowing(Player p) {
-        PacketContainer container = pm.createPacket(PacketType.Play.Server.ENTITY_METADATA);
-        container.getIntegers().write(0, p.getEntityId());
-        WrappedDataWatcher watcher = new WrappedDataWatcher();
+    private static void makePlayerGlowing(Player player) {
+        PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA);
+        packet.getIntegers().write(0, player.getEntityId());
+        WrappedDataWatcher dataWatcher = new WrappedDataWatcher();
         WrappedDataWatcher.Serializer serializer = WrappedDataWatcher.Registry.get(Byte.class);
-        watcher.setEntity(p);
-        watcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(0, serializer), (byte) (0x40));
-        container.getWatchableCollectionModifier().write(0, watcher.getWatchableObjects());
+        dataWatcher.setEntity(player);
+        dataWatcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(0, serializer), (byte) (0x40));
+        packet.getWatchableCollectionModifier().write(0, dataWatcher.getWatchableObjects());
 
-        GameManager.getTagger().forEach(player -> {
+        GameManager.getTagger().forEach(p -> {
             try {
-                pm.sendServerPacket(player, container);
+                protocolManager.sendServerPacket(p, packet);
             } catch (InvocationTargetException e) {
                 e.printStackTrace();
             }
         });
     }
 
-    private static void removePlayerGlowing(Player p) {
-        PacketContainer container = pm.createPacket(PacketType.Play.Server.ENTITY_METADATA);
-        container.getIntegers().write(0, p.getEntityId());
-        WrappedDataWatcher watcher = new WrappedDataWatcher();
+    private static void removePlayerGlowing(Player player) {
+        PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA);
+        packet.getIntegers().write(0, player.getEntityId());
+        WrappedDataWatcher dataWatcher = new WrappedDataWatcher();
         WrappedDataWatcher.Serializer serializer = WrappedDataWatcher.Registry.get(Byte.class);
-        watcher.setEntity(p);
-        watcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(0, serializer), (byte) (0));
-        container.getWatchableCollectionModifier().write(0, watcher.getWatchableObjects());
+        dataWatcher.setEntity(player);
+        dataWatcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(0, serializer), (byte) (0));
+        packet.getWatchableCollectionModifier().write(0, dataWatcher.getWatchableObjects());
 
-        GameManager.getTagger().forEach(player -> {
+        GameManager.getTagger().forEach(p -> {
             try {
-                pm.sendServerPacket(player, container);
+                protocolManager.sendServerPacket(p, packet);
             } catch (InvocationTargetException e) {
                 e.printStackTrace();
             }

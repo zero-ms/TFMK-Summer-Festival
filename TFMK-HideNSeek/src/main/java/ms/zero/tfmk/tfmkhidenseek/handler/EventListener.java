@@ -32,102 +32,101 @@ import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.GlobalVariable.*;
 
 public class EventListener implements Listener {
     @EventHandler
-    public void onPlayerNPCRightClickEvent(NPCRightClickEvent e) {
-        String npcName = ChatColor.stripColor(e.getNPC().getName());
-        Player p = e.getClicker();
+    public void onPlayerNPCRightClickEvent(NPCRightClickEvent npcRightClickEvent) {
+        String npcName = ChatColor.stripColor(npcRightClickEvent.getNPC().getName());
+        Player clicker = npcRightClickEvent.getClicker();
         if (npcName.equalsIgnoreCase("참가하기")) {
-            if (!GameManager.join(p)) {
-                p.sendMessage(translate("&6[TFMK] &7참가할 수 없습니다."));
+            if (!GameManager.join(clicker)) {
+                clicker.sendMessage(translate("&6[TFMK] &7참가할 수 없습니다."));
             }
         } else if (npcName.equalsIgnoreCase("퇴장하기")) {
-            if (!GameManager.quit(p, GameRule.Reason.NPC)) {
-                p.sendMessage(translate("&6[TFMK] &7퇴장할 수 없습니다."));
+            if (!GameManager.quit(clicker, GameRule.Reason.NPC)) {
+                clicker.sendMessage(translate("&6[TFMK] &7퇴장할 수 없습니다."));
             }
         }
     }
 
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent e) {
+    public void onPlayerJoin(PlayerJoinEvent playerJoinEvent) {
 
     }
 
     @EventHandler
-    public void onPlayerExit(PlayerQuitEvent e) {
+    public void onPlayerExit(PlayerQuitEvent playerQuitEvent) {
 
     }
 
     @EventHandler
-    public void onInventoryClick(InventoryClickEvent e) {
-        if (e.getSlotType().equals(InventoryType.SlotType.ARMOR)) {
-            Player p = (Player) e.getWhoClicked();
-            if (GameManager.isTagger(p)) {
-                e.setCancelled(true);
+    public void onInventoryClick(InventoryClickEvent inventoryClickEvent) {
+        Player clicker = (Player) inventoryClickEvent.getWhoClicked();
+        if (inventoryClickEvent.getSlotType().equals(InventoryType.SlotType.ARMOR)) {
+            if (GameManager.isTagger(clicker)) {
+                inventoryClickEvent.setCancelled(true);
             }
         }
-        if (e.getCurrentItem() != null && e.getCurrentItem().equals(GOLDEN_HOE)) {
-            Player p = (Player) e.getWhoClicked();
-            if (GameManager.isTagger(p)) {
-                e.setCancelled(true);
+        if (inventoryClickEvent.getCurrentItem() != null && inventoryClickEvent.getCurrentItem().equals(GOLDEN_HOE)) {
+            if (GameManager.isTagger(clicker)) {
+                inventoryClickEvent.setCancelled(true);
             }
         }
     }
 
     @EventHandler
-    public void onPlayerDropItem(PlayerDropItemEvent e) {
-        ItemStack i = e.getItemDrop().getItemStack();
-        if (i.equals(GOLDEN_HOE)) {
-            if (GameManager.isTagger(e.getPlayer())) {
-                e.setCancelled(true);
+    public void onPlayerDropItem(PlayerDropItemEvent playerDropItemEvent) {
+        ItemStack droppedItem = playerDropItemEvent.getItemDrop().getItemStack();
+        if (droppedItem.equals(GOLDEN_HOE)) {
+            if (GameManager.isTagger(playerDropItemEvent.getPlayer())) {
+                playerDropItemEvent.setCancelled(true);
             }
         }
 
-        if (i.hasItemMeta()) {
-            if (i.getItemMeta().getDisplayName().equals(KEY_PIECE.getItemMeta().getDisplayName())) {
-                if (GameManager.isRunner(e.getPlayer())) {
-                    e.setCancelled(true);
+        if (droppedItem.hasItemMeta()) {
+            if (droppedItem.getItemMeta().getDisplayName().equals(KEY_PIECE.getItemMeta().getDisplayName())) {
+                if (GameManager.isRunner(playerDropItemEvent.getPlayer())) {
+                    playerDropItemEvent.setCancelled(true);
                 }
             }
         }
     }
 
     @EventHandler
-    public void onEntityDamageByEntity(EntityDamageByEntityEvent e) {
-        if (e.getDamager() instanceof Player && e.getEntity() instanceof Player) {
-            Player victim = (Player) e.getEntity();
-            Player attacker = (Player) e.getDamager();
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent entityDamageByEntityEvent) {
+        if (entityDamageByEntityEvent.getDamager() instanceof Player && entityDamageByEntityEvent.getEntity() instanceof Player) {
+            Player victim = (Player) entityDamageByEntityEvent.getEntity();
+            Player attacker = (Player) entityDamageByEntityEvent.getDamager();
             if (GameManager.isTagger(attacker) && GameManager.isRunner(victim)) {
                 if (GameManager.isGameStarted()) {
                     GameManager.catchTheRunner(victim);
                 } else {
-                    e.setCancelled(true);
+                    entityDamageByEntityEvent.setCancelled(true);
                 }
             } else {
-                e.setCancelled(true);
+                entityDamageByEntityEvent.setCancelled(true);
             }
         }
     }
 
     @EventHandler
-    public void onEntityDamage(EntityDamageEvent e) {
-        if (e.getCause().equals(EntityDamageEvent.DamageCause.FALL)) {
-            e.setCancelled(true);
+    public void onEntityDamage(EntityDamageEvent entityDamageEvent) {
+        if (entityDamageEvent.getCause().equals(EntityDamageEvent.DamageCause.FALL)) {
+            entityDamageEvent.setCancelled(true);
         }
     }
 
     @EventHandler
-    public void onPlayerPickupItem(EntityPickupItemEvent e) {
-        ItemStack i = e.getItem().getItemStack();
-        if (i.hasItemMeta()) {
-            if (i.getItemMeta().getDisplayName().equals(KEY_PIECE.getItemMeta().getDisplayName())) {
-                Player p = (Player) e.getEntity();
-                if (GameManager.isRunner(p)) {
+    public void onPlayerPickupItem(EntityPickupItemEvent entityPickupItemEvent) {
+        ItemStack pickedUpItem = entityPickupItemEvent.getItem().getItemStack();
+        if (pickedUpItem.hasItemMeta()) {
+            if (pickedUpItem.getItemMeta().getDisplayName().equals(KEY_PIECE.getItemMeta().getDisplayName())) {
+                Player eventEntity = (Player) entityPickupItemEvent.getEntity();
+                if (GameManager.isRunner(eventEntity)) {
                     if (GameManager.isGameStarted()) {
-                        GameManager.pickUpKey((Player) e.getEntity());
+                        GameManager.pickUpKey((Player) entityPickupItemEvent.getEntity());
                     } else {
-                        e.setCancelled(true);
+                        entityPickupItemEvent.setCancelled(true);
                     }
                 } else {
-                    e.setCancelled(true);
+                    entityPickupItemEvent.setCancelled(true);
                 }
             }
         }
