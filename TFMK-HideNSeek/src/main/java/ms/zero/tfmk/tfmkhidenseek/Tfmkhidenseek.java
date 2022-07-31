@@ -1,5 +1,8 @@
 package ms.zero.tfmk.tfmkhidenseek;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketEvent;
 import ms.zero.tfmk.tfmkhidenseek.handler.CommandListener;
 import ms.zero.tfmk.tfmkhidenseek.handler.EventListener;
 import ms.zero.tfmk.tfmkhidenseek.handler.FileHandler;

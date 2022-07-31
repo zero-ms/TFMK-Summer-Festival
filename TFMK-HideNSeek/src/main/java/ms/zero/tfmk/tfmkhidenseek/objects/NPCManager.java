@@ -2,6 +2,7 @@ package ms.zero.tfmk.tfmkhidenseek.objects;
 
 import com.comphenix.packetwrapper.*;
 import com.comphenix.protocol.wrappers.*;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.io.BufferedReader;
@@ -12,6 +13,7 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.GlobalVariable.entityIDGenerator;
+import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.GlobalVariable.plugin;
 
 public class NPCManager {
     private static HashMap<Player, NPC> npcByPlayer = new HashMap<>();
@@ -19,8 +21,10 @@ public class NPCManager {
 
     public static void showNPC(List<Player> players) {
         NPCManager.players = new ArrayList<>(players);
-        NPC npc = new NPC(getRandomChar(8), entityIDGenerator.decrementAndGet());
-        players.forEach(player -> npcByPlayer.put(player, npc));
+        for (Player player : players) {
+            NPC npc = new NPC(getRandomChar(8), entityIDGenerator.decrementAndGet());
+            npcByPlayer.put(player, npc);
+        }
         showMirroringNPC();
     }
 
@@ -74,11 +78,21 @@ public class NPCManager {
             animation.sendPacket(player);
 
             NameTagManager.hideNameTag(player, name);
+
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+                @Override
+                public void run() {
+                    playerInfo.setAction(EnumWrappers.PlayerInfoAction.REMOVE_PLAYER);
+                    playerInfo.setData(Arrays.asList(playerInfoData));
+                    playerInfo.sendPacket(player);
+                }
+            }, 5L);
         }
     }
 
     private static void removeMirroringNPC() {
         for (Player player : players) {
+
             NameTagManager.showNameTag(player, npcByPlayer.get(player).getNpcName());
             WrapperPlayServerEntityDestroy entityDestroy = new WrapperPlayServerEntityDestroy();
             entityDestroy.setEntityIds(IntStream.of(npcByPlayer.get(player).getEntityID()).toArray());

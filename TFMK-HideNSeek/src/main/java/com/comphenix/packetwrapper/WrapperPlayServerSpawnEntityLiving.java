@@ -123,8 +123,8 @@ public class WrapperPlayServerSpawnEntityLiving extends AbstractPacket {
 	 * @param value - new value.
 	 */
 	@SuppressWarnings("deprecation")
-	public void setType(EntityType value) {
-		handle.getIntegers().write(1, (int) value.getTypeId());
+	public void setType(Integer value) {
+		handle.getIntegers().write(1, value);
 	}
 
 	/**

@@ -1,0 +1,7 @@
+name: Tfmktitle
+version: '${version}'
+main: ms.zero.tfmk.tfmktitle.Tfmktitle
+api-version: 1.16
+prefix: TFMK-Title
+authors: [ DataCat ]
+description: Managing title for all users

@@ -375,9 +375,9 @@ public class GameManager {
     }
 
     private static void showRankingHologram(Player player) {
-        HologramManager.createHologram(player, new Location(world, 282.5, 86, -101.5), "test1");
-        HologramManager.createHologram(player, new Location(world, 282.5, 86.35, -101.5), "test2");
-        HologramManager.createHologram(player, new Location(world, 282.5, 86.7, -101.5), "test3");
+        HologramManager.createHologram(player, new Location(world, 282.5, 86, -101.5), "test1", false);
+        HologramManager.createHologram(player, new Location(world, 282.5, 86.35, -101.5), "test2", false);
+        HologramManager.createHologram(player, new Location(world, 282.5, 86.7, -101.5), "test3", false);
     }
 
     private static void ending() {
