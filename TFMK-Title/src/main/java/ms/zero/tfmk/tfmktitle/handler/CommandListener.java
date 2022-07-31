@@ -2,6 +2,7 @@ package ms.zero.tfmk.tfmktitle.handler;
 
 import com.comphenix.packetwrapper.WrapperPlayServerScoreboardTeam;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
+import ms.zero.tfmk.tfmktitle.objects.TeamManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -17,23 +18,11 @@ public class CommandListener implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        Player commandSender = (Player) sender;
-        commandSender.sendMessage("YO");
-        WrapperPlayServerScoreboardTeam adminTeam = new WrapperPlayServerScoreboardTeam();
-        adminTeam.setName("tfmk-admin");
-        adminTeam.setDisplayName(WrappedChatComponent.fromText(""));
-        adminTeam.setPrefix(WrappedChatComponent.fromText(translate("&c[DEV] &f")));
-        adminTeam.setNameTagVisibility("always");
-        adminTeam.setMode(WrapperPlayServerScoreboardTeam.Mode.TEAM_CREATED);
-        adminTeam.setCollisionRule("always");
-        adminTeam.setColor(ChatColor.WHITE);
-        adminTeam.sendPacket(commandSender);
-
-        adminTeam = new WrapperPlayServerScoreboardTeam();
-        adminTeam.setName("tfmk-admin");
-        adminTeam.setMode(WrapperPlayServerScoreboardTeam.Mode.PLAYERS_ADDED);
-        adminTeam.setPlayers(Arrays.asList(commandSender.getName()));
-        adminTeam.sendPacket(commandSender);
-        return false;
+        if (label.equalsIgnoreCase("titleupdate")) {
+            TeamManager.updatePlayersTeam();
+            return true;
+        } else {
+            return false;
+        }
     }
 }

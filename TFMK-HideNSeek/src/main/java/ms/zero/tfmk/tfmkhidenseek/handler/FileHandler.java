@@ -2,6 +2,7 @@ package ms.zero.tfmk.tfmkhidenseek.handler;
 
 import ms.zero.tfmk.tfmkhidenseek.gamehandler.GameRule;
 import ms.zero.tfmk.tfmkhidenseek.gamehandler.KeyDropper;
+import ms.zero.tfmk.tfmkhidenseek.miscellaneous.GlobalVariable;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -47,6 +48,7 @@ public class FileHandler {
             GameRule.setMinPlayers(minPlayers);
             GameRule.setLeastTaggers(leastTaggers);
             GameRule.setNeedKey(needKey);
+            GlobalVariable.initGameItem();
         } catch (Exception ex) {
             ex.printStackTrace();
             Bukkit.getConsoleSender().sendMessage(translate("&cconfig.yml 파일이 손상되었습니다. 개발자에게 문의하시시오."));

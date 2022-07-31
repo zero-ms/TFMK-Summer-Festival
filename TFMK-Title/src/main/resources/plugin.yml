@@ -6,5 +6,5 @@ prefix: TFMK-Title
 authors: [ DataCat ]
 description: Managing title for all users
 commands:
-  testtitle:
+  titleupdate:
 depend: [ProtocolLib]

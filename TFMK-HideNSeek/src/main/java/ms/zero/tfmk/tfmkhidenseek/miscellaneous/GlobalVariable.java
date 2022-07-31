@@ -2,6 +2,8 @@ package ms.zero.tfmk.tfmkhidenseek.miscellaneous;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
+import ms.zero.tfmk.tfmkhidenseek.gamehandler.GameRule;
+import ms.zero.tfmk.tfmkhidenseek.gamehandler.GameScore;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -19,7 +21,8 @@ public class GlobalVariable {
     public static ItemStack PUMPKIN_HELMET;
     public static ItemStack GOLDEN_HOE;
     public static ItemStack KEY_PIECE;
-    static {
+
+    public static void initGameItem() {
         PUMPKIN_HELMET = new ItemStack(Material.CARVED_PUMPKIN);
         GOLDEN_HOE = new ItemStack(Material.GOLDEN_HOE);
 
@@ -37,7 +40,7 @@ public class GlobalVariable {
         lores.add(translate("&7이 지옥같은 저택을 벗어날 수 있는 열쇠다."));
         lores.add(translate("&f"));
         lores.add(translate("&c[주의사항]"));
-        lores.add(translate("&7총 &c10&7개를 모아야 탈출이 가능합니다."));
+        lores.add(String.format(translate("&7총 &c%d&7개를 모아야 탈출이 가능합니다."), GameRule.getNeedKey()));
         lores.add(translate("&7술래에게 잡히면 죽은 위치에 획득한 모든 열쇠를 &a드랍&7합니다."));
         meta.setLore(lores);
         KEY_PIECE.setItemMeta(meta);

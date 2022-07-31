@@ -11,7 +11,7 @@ public final class Tfmktitle extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        getCommand("testtitle").setExecutor(new CommandListener());
+        getCommand("titleupdate").setExecutor(new CommandListener());
         Bukkit.getPluginManager().registerEvents(new EventListener(), this);
     }
 

@@ -462,7 +462,7 @@ public class GameManager {
         HologramManager.createHologram(player, new Location(world, 282.5, 86, -101.5), String.format(translate("&f처음 역할: &a%s"), gamePlayers.get(player).getInitialPlayerType().name()), false);
         HologramManager.createHologram(player, new Location(world, 282.5, 86.35, -101.5), String.format(translate("&f최종 역할: &c%s"), gamePlayers.get(player).getFinalPlayerType().name()), false);
         HologramManager.createHologram(player, new Location(world, 282.5, 86.7, -101.5), String.format(translate("&f획득한 키: &3%d&f개"), gamePlayers.get(player).getPickedUpKeyScore()), false);
-        HologramManager.createHologram(player, new Location(world, 282.5, 87.05, -101.5), String.format(translate("&c죽인 사람: &4%d&f명"), gamePlayers.get(player).getKillScore()), false);
+        HologramManager.createHologram(player, new Location(world, 282.5, 87.05, -101.5), String.format(translate("&f죽인 사람: &4%d&f명"), gamePlayers.get(player).getKillScore()), false);
 
         HologramRankingPreset.getKillRanking().forEach(hologram -> {
             HologramManager.createHologram(player, hologram.getHologramLocation(), hologram.getHologramText(), hologram.getClickable());
