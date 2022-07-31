@@ -7,34 +7,30 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
 import java.util.*;
-import java.util.concurrent.Semaphore;
 import java.util.stream.IntStream;
 
 import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.GlobalVariable.*;
 import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.Util.translate;
 
 public class HologramManager {
-    private static HashMap<Player, HologramWatcher> playerToArmorStandID = new HashMap<>();
-    private static HashMap<Integer, HologramWatcher> playerBySlimeID = new HashMap<>();
+    private static HashMap<Player, HologramWatcher> playerToHologramWatcher = new HashMap<>();
+    private static HashMap<Integer, HologramWatcher> HologramWatcherBySlimeID = new HashMap<>();
     private static PacketAdapter clickListener;
 
     public static void initListener() {
         clickListener = new PacketAdapter(plugin, PacketType.Play.Client.USE_ENTITY) {
             @Override
             public void onPacketReceiving(PacketEvent event) {
-                //Bukkit.broadcastMessage("First-DEBUG");
                 Integer entityID = event.getPacket().getIntegers().read(0);
-                if (playerBySlimeID.containsKey(entityID)) {
-                    HologramWatcher playerHologramInfo = playerBySlimeID.get(entityID);
+                if (HologramWatcherBySlimeID.containsKey(entityID)) {
+                    HologramWatcher playerHologramInfo = HologramWatcherBySlimeID.get(entityID);
                     if (event.getPacket().getEntityUseActions().read(0) == EnumWrappers.EntityUseAction.INTERACT) {
                         if (event.getPacket().getHands().read(0) == EnumWrappers.Hand.MAIN_HAND) {
-                            //Bukkit.broadcastMessage("Secpmd-DEBUG");
                             playerHologramInfo.getWatcher().sendMessage(translate("&6[!] &7전환되었습니다."));
                             chagneHologramPage(playerHologramInfo);
                         }
@@ -67,13 +63,11 @@ public class HologramManager {
         int index = 0;
         if (page == 0) {
             for (Integer armorStandID : playerHologramInfo.getRankArmorStands()) {
-                Bukkit.broadcastMessage(String.format("Player: %s, Text: %s, ID: %d", playerHologramInfo.getWatcher().getName(), HologramRankingPreset.getKillRanking(index).getHologramText(), armorStandID));
                 updateArmorStandMetaData(playerHologramInfo.getWatcher(), armorStandID, HologramRankingPreset.getKillRanking(index).getHologramText());
                 index += 1;
             }
         } else {
             for (Integer armorStandID : playerHologramInfo.getRankArmorStands()) {
-                Bukkit.broadcastMessage(String.format("Player: %s, Text: %s, ID: %d", playerHologramInfo.getWatcher().getName(), HologramRankingPreset.getKeyRanking(index).getHologramText(), armorStandID));
                 updateArmorStandMetaData(playerHologramInfo.getWatcher(), armorStandID, HologramRankingPreset.getKeyRanking(index).getHologramText());
                 index += 1;
             }
@@ -81,8 +75,8 @@ public class HologramManager {
     }
 
     private static HologramWatcher getPlayerHologram(Player player) {
-        if (playerToArmorStandID.containsKey(player)) {
-            return playerToArmorStandID.get(player);
+        if (playerToHologramWatcher.containsKey(player)) {
+            return playerToHologramWatcher.get(player);
         } else {
             return new HologramWatcher(player);
         }
@@ -105,11 +99,10 @@ public class HologramManager {
     private static Integer spawnArmorStand(Player player, Location location, String text) {
         WrapperPlayServerSpawnEntity armorStandSpawnEntity = new WrapperPlayServerSpawnEntity();
         Integer armorStandID = entityIDGenerator.decrementAndGet();
-        Bukkit.broadcastMessage(String.format("Player: %s, ID: %d", player.getName(), armorStandID));
         HologramWatcher playersHologramInfo = getPlayerHologram(player);
         playersHologramInfo.addArmorStandID(armorStandID, isRankHologram(text));
 
-        playerToArmorStandID.put(player, playersHologramInfo);
+        playerToHologramWatcher.put(player, playersHologramInfo);
         armorStandSpawnEntity.setEntityID(armorStandID);
         armorStandSpawnEntity.setType(EntityType.ARMOR_STAND);
         UUID uuid = UUID.randomUUID();
@@ -140,7 +133,7 @@ public class HologramManager {
         WrapperPlayServerSpawnEntityLiving slimeEntityLiving = new WrapperPlayServerSpawnEntityLiving();
         Integer slimeID = entityIDGenerator.decrementAndGet();
         HologramWatcher playerHologramInfo = getPlayerHologram(player);
-        playerBySlimeID.put(slimeID, playerHologramInfo);
+        HologramWatcherBySlimeID.put(slimeID, playerHologramInfo);
         slimeEntityLiving.setEntityID(slimeID);
         slimeEntityLiving.setUniqueId(UUID.randomUUID());
         slimeEntityLiving.setType(75);
@@ -185,16 +178,16 @@ public class HologramManager {
         armorStandDestroy.sendPacket(player);
 
         WrapperPlayServerEntityDestroy slimeDestroy = new WrapperPlayServerEntityDestroy();
-        slimeDestroy.setEntityIds(playerBySlimeID.keySet().stream().mapToInt(i -> i).toArray());
+        slimeDestroy.setEntityIds(HologramWatcherBySlimeID.keySet().stream().mapToInt(i -> i).toArray());
         slimeDestroy.sendPacket(player);
     }
 
-    public static void cleartest() {
-        playerToArmorStandID.clear();
-        playerBySlimeID.clear();
+    public static void clearWatchers() {
+        playerToHologramWatcher.clear();
+        HologramWatcherBySlimeID.clear();
     }
 
     public static HologramWatcher getHologramWatcher(Player player) {
-        return playerToArmorStandID.get(player);
+        return playerToHologramWatcher.get(player);
     }
 }

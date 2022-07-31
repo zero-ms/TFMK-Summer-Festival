@@ -25,7 +25,7 @@ public class HologramRankingPreset {
         firstPageHologramSet.add(new Hologram(translate("&7#3 &f &b(kill_rank_3_name) &8&o((kill_rank_3_score)명)"), new Location(world, 285, 85.7, -101.5), false));
         firstPageHologramSet.add(new Hologram(translate("&7#4 &f &f(kill_rank_4_name) &8&o((kill_rank_4_score)명)"), new Location(world, 285, 85.35, -101.5), false));
         firstPageHologramSet.add(new Hologram(translate("&7#5 &f &f(kill_rank_5_name) &8&o((kill_rank_5_score)명)"), new Location(world, 285, 85, -101.5), false));
-        firstPageHologramSet.add(new Hologram(translate("&7&o(클릭하여 전환)"), new Location(world, 285, 84.6, -101.5), true));
+        firstPageHologramSet.add(new Hologram(translate("&7&o(여기를 우클릭하여 전환)"), new Location(world, 285, 84.6, -101.5), true));
 
         secondPageHologramSet.add(new Hologram(translate("&7===== (&3획득 키 랭킹&7) ====="), new Location(world, 285, 86.9, -101.5), false));
         secondPageHologramSet.add(new Hologram(translate("&7#1 &f &e(key_rank_1_name) &8&o((key_rank_1_score)개)"), new Location(world, 285, 86.4, -101.5), false));
@@ -33,7 +33,7 @@ public class HologramRankingPreset {
         secondPageHologramSet.add(new Hologram(translate("&7#3 &f &b(key_rank_3_name) &8&o((key_rank_3_score)개)"), new Location(world, 285, 85.7, -101.5), false));
         secondPageHologramSet.add(new Hologram(translate("&7#4 &f &f(key_rank_4_name) &8&o((key_rank_4_score)개)"), new Location(world, 285, 85.35, -101.5), false));
         secondPageHologramSet.add(new Hologram(translate("&7#5 &f &f(key_rank_5_name) &8&o((key_rank_5_score)개)"), new Location(world, 285, 85, -101.5), false));
-        secondPageHologramSet.add(new Hologram(translate("&7&o(클릭하여 전환)"), new Location(world, 285, 84.6, -101.5), true));
+        secondPageHologramSet.add(new Hologram(translate("&7&o(여기를 우클릭하여 전환)"), new Location(world, 285, 84.6, -101.5), true));
     }
     public static void updateRanking() {
         ArrayList<GamePlayer> sortedKillRanking = GameScore.getKillRanking();

@@ -40,11 +40,8 @@ public class NPCManager {
         UUID uuid = UUID.randomUUID();
         String name = npcByPlayer.get(player).getNpcName();
         WrappedGameProfile gameProfile = new WrappedGameProfile(uuid, name);
-        Long test1 = System.currentTimeMillis();
         String[] textureData = getSkinTextureAndSignature(player);
         gameProfile.getProperties().put("textures", new WrappedSignedProperty("textures", textureData[0], textureData[1]));
-        Long test2 = System.currentTimeMillis() - test1;
-        Bukkit.broadcastMessage(player.getName() + ", ping: " + test2.toString() + ", currentTimeMillis: " + System.currentTimeMillis());
         int latency = 10;
         PlayerInfoData playerInfoData = new PlayerInfoData(gameProfile, latency, EnumWrappers.NativeGameMode.CREATIVE,
                 WrappedChatComponent.fromText(name));

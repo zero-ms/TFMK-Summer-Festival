@@ -43,13 +43,16 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent playerJoinEvent) {
-
-    }
-
-    @EventHandler
     public void onPlayerExit(PlayerQuitEvent playerQuitEvent) {
+        Player offlinePlayer = playerQuitEvent.getPlayer();
+        if (GameManager.isPlaying(offlinePlayer)) {
+            if (GameManager.isGameStarted()) {
+                GameManager.quit(offlinePlayer, GameRule.Reason.FORCE);
+            } else {
+                GameManager.quit(offlinePlayer, GameRule.Reason.NPC);
+            }
 
+        }
     }
 
     @EventHandler

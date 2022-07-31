@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 public class HologramWatcher {
     private Player player;
-    private HashMap<Integer, Boolean> armorStandIDs = new HashMap<>();
+    private LinkedHashMap<Integer, Boolean> armorStandIDs = new LinkedHashMap<>();
     private Integer hologramPage = 0;
 
     public HologramWatcher(Player p) {
@@ -34,9 +34,7 @@ public class HologramWatcher {
     }
 
     public ArrayList<Integer> getRankArmorStands() {
-        ArrayList<Integer> sortedArmorStandIDs = armorStandIDs.keySet().stream().filter(id -> armorStandIDs.get(id)).collect(Collectors.toCollection(ArrayList::new));
-        Collections.sort(sortedArmorStandIDs, Collections.reverseOrder());
-        return sortedArmorStandIDs;
+        return new ArrayList<>(armorStandIDs.keySet()).stream().filter(id -> armorStandIDs.get(id)).collect(Collectors.toCollection(ArrayList::new));
     }
 
     public ArrayList<Integer> getAllArmorStands() {

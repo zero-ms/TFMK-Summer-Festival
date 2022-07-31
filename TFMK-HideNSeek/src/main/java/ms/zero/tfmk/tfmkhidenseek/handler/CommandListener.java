@@ -46,24 +46,6 @@ public class CommandListener implements CommandExecutor {
                     commandSender.sendMessage(
                             String.format(translate("&c[DEBUG] &7least_player: %d least_tagger: %d need_key: %d"),
                                     GameRule.getMinPlayers(), GameRule.getLeastTaggers(), GameRule.getNeedKey()));
-                } else if (args[0].equalsIgnoreCase("ar")) {
-                    StringBuilder argsBuilder = new StringBuilder();
-                    for (int i = 1; i < args.length; i++) {
-                        argsBuilder.append(args[i]).append(" ");
-                    }
-                    argsBuilder.deleteCharAt(argsBuilder.length()-1);
-                    Util.spawnArmorStand(translate(argsBuilder.toString()));
-                } else if (args[0].equalsIgnoreCase("test")) {
-                    HashMap<Integer, String> ef = new HashMap<>();
-                    ef.put(0, "test1");
-                    ef.put(2, "test3");
-                    ef.put(1, "test2");
-                    Object[] mapkey = ef.keySet().toArray();
-                    Arrays.sort(mapkey);
-
-                    for (Integer key : ef.keySet()) {
-                        System.out.println(ef.get(key));
-                    }
                 }
             }
             return true;
