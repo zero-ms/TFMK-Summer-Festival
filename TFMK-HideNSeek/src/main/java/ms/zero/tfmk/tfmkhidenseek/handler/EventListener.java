@@ -22,10 +22,6 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 
 import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.Util.translate;
 import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.GlobalVariable.*;
@@ -96,7 +92,7 @@ public class EventListener implements Listener {
             Player attacker = (Player) entityDamageByEntityEvent.getDamager();
             if (GameManager.isTagger(attacker) && GameManager.isRunner(victim)) {
                 if (GameManager.isGameStarted()) {
-                    GameManager.catchTheRunner(victim);
+                    GameManager.catchTheRunner(attacker, victim);
                 } else {
                     entityDamageByEntityEvent.setCancelled(true);
                 }

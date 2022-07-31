@@ -1,4 +1,4 @@
-package ms.zero.tfmk.tfmkhidenseek.objects;
+package ms.zero.tfmk.tfmkhidenseek.nmshandler;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketAdapter;
@@ -6,6 +6,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import ms.zero.tfmk.tfmkhidenseek.gamehandler.GameManager;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.InvocationTargetException;

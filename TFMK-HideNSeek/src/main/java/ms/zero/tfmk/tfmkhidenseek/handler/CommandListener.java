@@ -4,10 +4,11 @@ import com.comphenix.packetwrapper.*;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import ms.zero.tfmk.tfmkhidenseek.gamehandler.GameManager;
+import ms.zero.tfmk.tfmkhidenseek.gamehandler.GameRule;
 import ms.zero.tfmk.tfmkhidenseek.gamehandler.GameScore;
 import ms.zero.tfmk.tfmkhidenseek.miscellaneous.Util;
-import ms.zero.tfmk.tfmkhidenseek.objects.HologramManager;
-import ms.zero.tfmk.tfmkhidenseek.objects.NPCManager;
+import ms.zero.tfmk.tfmkhidenseek.hologramhandler.HologramManager;
+import ms.zero.tfmk.tfmkhidenseek.npchandler.NPCManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -18,7 +19,7 @@ import org.bukkit.entity.Player;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
@@ -42,6 +43,9 @@ public class CommandListener implements CommandExecutor {
                             String.format(translate("&c[DEBUG] &7drop_key: %d pick_key: %d tagger: %d runner: %d"),
                                     GameScore.getDroppedKeyScore(), GameScore.getPickedUpKeyScore(), GameScore.getTaggerCount(),
                                     GameScore.getRunnerCount()));
+                    commandSender.sendMessage(
+                            String.format(translate("&c[DEBUG] &7least_player: %d least_tagger: %d need_key: %d"),
+                                    GameRule.getMinPlayers(), GameRule.getLeastTaggers(), GameRule.getNeedKey()));
                 } else if (args[0].equalsIgnoreCase("ar")) {
                     StringBuilder argsBuilder = new StringBuilder();
                     for (int i = 1; i < args.length; i++) {
@@ -50,77 +54,16 @@ public class CommandListener implements CommandExecutor {
                     argsBuilder.deleteCharAt(argsBuilder.length()-1);
                     Util.spawnArmorStand(translate(argsBuilder.toString()));
                 } else if (args[0].equalsIgnoreCase("test")) {
-                    Class tfmkTitlePlugin = Bukkit.getPluginManager().getPlugin("Tfmktitle").getClass();
-                    try {
-                        Method updateMethod = tfmkTitlePlugin.getMethod("updatePlayersTeam", null);
-                        updateMethod.invoke(null);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
+                    HashMap<Integer, String> ef = new HashMap<>();
+                    ef.put(0, "test1");
+                    ef.put(2, "test3");
+                    ef.put(1, "test2");
+                    Object[] mapkey = ef.keySet().toArray();
+                    Arrays.sort(mapkey);
+
+                    for (Integer key : ef.keySet()) {
+                        System.out.println(ef.get(key));
                     }
-                } else if (args[0].equalsIgnoreCase("st")) {
-                    NPCManager.showNPC(Arrays.asList(commandSender));
-                    HologramManager.createHologram(commandSender, new Location(world, 282.5, 86, -101.5), translate("&f처음 역할: &a도망자"), false);
-                    HologramManager.createHologram(commandSender, new Location(world, 282.5, 86.35, -101.5), translate("&f최종 역할: &c술래"), false);
-                    HologramManager.createHologram(commandSender, new Location(world, 282.5, 86.7, -101.5), translate("&f획득한 키: &32&f개"), false);
-                    HologramManager.createHologram(commandSender, new Location(world, 282.5, 87.05, -101.5), translate("&c죽인 사람: &41&f명"), false);
-                    HologramManager.createHologram(commandSender, new Location(world, 285, 84.6, -101.5), translate("&7&o(클릭하여 전환)"), true);
-                    HologramManager.createHologram(commandSender, new Location(world, 285, 85, -101.5), translate("&7#5 &f &fBamboo_Photo &8&o(1명)"), false);
-                    HologramManager.createHologram(commandSender, new Location(world, 285, 85.35, -101.5), translate("&7#4 &f &fLukasCZZero &8&o(2명)"), false);
-                    HologramManager.createHologram(commandSender, new Location(world, 285, 85.7, -101.5), translate("&7#3 &f &bchanchani &8&o(5명)"), false);
-                    HologramManager.createHologram(commandSender, new Location(world, 285, 86.05, -101.5), translate("&7#2 &f &dLov_vol &8&o(10명)"), false);
-                    HologramManager.createHologram(commandSender, new Location(world, 285, 86.4, -101.5), translate("&7#1 &f &eTFMK-Master &8&o(11명)"), false);
-                    HologramManager.createHologram(commandSender, new Location(world, 285, 86.9, -101.5), translate("&7===== (&c킬 랭킹&7) ====="), false);
-                } else if (args[0].equalsIgnoreCase("slime")) {
-
-                    WrapperPlayServerSpawnEntity spawnEntity = new WrapperPlayServerSpawnEntity();
-                    Integer armorID = entityIDGenerator.decrementAndGet();
-                    spawnEntity.setEntityID(armorID);
-                    spawnEntity.setType(EntityType.ARMOR_STAND);
-                    UUID uuid = UUID.randomUUID();
-                    spawnEntity.setUniqueId(uuid);
-                    spawnEntity.setX(commandSender.getLocation().getX());
-                    spawnEntity.setY(commandSender.getLocation().getY());
-                    spawnEntity.setZ(commandSender.getLocation().getZ());
-                    spawnEntity.setPitch(0.0f);
-                    spawnEntity.setYaw(0.0f);
-                    spawnEntity.sendPacket(commandSender);
-
-                    WrapperPlayServerEntityMetadata entityMetaData = new WrapperPlayServerEntityMetadata();
-                    WrappedDataWatcher dataWatcher = new WrappedDataWatcher();
-                    Optional<?> optionalChatComponent = Optional
-                            .of(WrappedChatComponent.fromText("test hologram").getHandle());
-                    dataWatcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(0, WrappedDataWatcher.Registry.get(Byte.class)), (byte) 0x20);
-                    dataWatcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(2, WrappedDataWatcher.Registry.getChatComponentSerializer(true)), optionalChatComponent);
-                    dataWatcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(3, WrappedDataWatcher.Registry.get(Boolean.class)), true);
-                    dataWatcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(14, WrappedDataWatcher.Registry.get(Byte.class)), (byte) (0x01 | 0x02 | 0x08 | 0x10));
-                    entityMetaData.setMetadata(dataWatcher.getWatchableObjects());
-                    entityMetaData.setEntityID(armorID);
-                    entityMetaData.sendPacket(commandSender);
-
-                    WrapperPlayServerSpawnEntityLiving spawnEntityLiving = new WrapperPlayServerSpawnEntityLiving();
-                    Integer slimeID = entityIDGenerator.decrementAndGet();
-                    spawnEntityLiving.setEntityID(slimeID);
-                    spawnEntityLiving.setUniqueId(UUID.randomUUID());
-                    spawnEntityLiving.setType(75);
-                    spawnEntityLiving.setX(commandSender.getLocation().getX());
-                    spawnEntityLiving.setY(commandSender.getLocation().getY());
-                    spawnEntityLiving.setZ(commandSender.getLocation().getZ());
-                    spawnEntityLiving.sendPacket(commandSender);
-
-                    WrapperPlayServerEntityMetadata slimeMeatData = new WrapperPlayServerEntityMetadata();
-                    WrappedDataWatcher dataWatcher2 = new WrappedDataWatcher();
-                    dataWatcher2.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(0, WrappedDataWatcher.Registry.get(Byte.class)), (byte) 0x20);
-
-                    slimeMeatData.setMetadata(dataWatcher2.getWatchableObjects());
-                    slimeMeatData.setEntityID(slimeID);
-                    slimeMeatData.sendPacket(commandSender);
-
-
-
-                    WrapperPlayServerMount mount = new WrapperPlayServerMount();
-                    mount.setEntityID(armorID);
-                    mount.setPassengerIds(IntStream.of(slimeID).toArray());
-                    mount.sendPacket(commandSender);
                 }
             }
             return true;

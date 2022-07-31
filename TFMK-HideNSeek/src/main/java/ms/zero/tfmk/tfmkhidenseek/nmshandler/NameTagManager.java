@@ -1,17 +1,15 @@
-package ms.zero.tfmk.tfmkhidenseek.objects;
+package ms.zero.tfmk.tfmkhidenseek.nmshandler;
 
 import com.comphenix.packetwrapper.WrapperPlayServerScoreboardTeam;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.Util.translate;
 
@@ -68,7 +66,7 @@ public class NameTagManager {
         scoreboardTeam.setDisplayName(WrappedChatComponent.fromText(""));
         scoreboardTeam.setNameTagVisibility("never");
         scoreboardTeam.setMode(WrapperPlayServerScoreboardTeam.Mode.TEAM_CREATED);
-        scoreboardTeam.setCollisionRule("always");
+        scoreboardTeam.setCollisionRule("never");
         scoreboardTeam.sendPacket(targetPlayer);
 
         scoreboardTeam = new WrapperPlayServerScoreboardTeam();

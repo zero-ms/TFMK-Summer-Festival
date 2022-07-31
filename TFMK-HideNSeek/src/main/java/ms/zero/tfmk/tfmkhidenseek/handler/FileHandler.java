@@ -43,7 +43,7 @@ public class FileHandler {
         try {
             Integer minPlayers = settingYaml.getInt("minPlayers");
             Integer leastTaggers = settingYaml.getInt("leastTaggers");
-            Integer needKey = settingYaml.getInt("needKey: 5");
+            Integer needKey = settingYaml.getInt("needKey");
             GameRule.setMinPlayers(minPlayers);
             GameRule.setLeastTaggers(leastTaggers);
             GameRule.setNeedKey(needKey);

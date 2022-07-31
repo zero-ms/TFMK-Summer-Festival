@@ -15,6 +15,14 @@ public class GameRule {
         FORCE,
     }
 
+    public enum EndReason {
+        TAGGER_WIN,
+        TAGGER_INSUFFICIENT,
+        KEY_SUFFICIENT,
+        TIMEOUT,
+        CAN_PLAY,
+    }
+
     public static Integer getMinPlayers() {
         return minPlayers;
     }

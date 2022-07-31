@@ -35,7 +35,7 @@ public class KeyDropper {
                 }
             }
         }
-        Bukkit.getPlayer("Bamboo_Photo").sendMessage(String.format(translate("&c[DEBUG] &7열쇠조각 &c%d&7개가 삭제됨."), count));
+        Bukkit.broadcastMessage(String.format(translate("&c[DEBUG] &7열쇠조각 &c%d&7개가 삭제됨."), count));
     }
 
     public static void put(Location location) {
@@ -61,7 +61,7 @@ public class KeyDropper {
     public static void spawnKey() {
         Location randomLocation = getRandomLocation();
         world.dropItemNaturally(randomLocation, KEY_PIECE);
-        Bukkit.getPlayer("Bamboo_Photo").sendMessage(String.format(translate("&c[DEBUG] &7열쇠조각 좌표: %d, %d, %d"),
+        Bukkit.broadcastMessage(String.format(translate("&c[DEBUG] &7열쇠조각 좌표: %d, %d, %d"),
                 randomLocation.getBlockX(), randomLocation.getBlockY(), randomLocation.getBlockZ()));
     }
 }

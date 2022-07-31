@@ -1,4 +1,4 @@
-package ms.zero.tfmk.tfmkhidenseek.objects;
+package ms.zero.tfmk.tfmkhidenseek.npchandler;
 
 public class NPC {
     private String npcName;

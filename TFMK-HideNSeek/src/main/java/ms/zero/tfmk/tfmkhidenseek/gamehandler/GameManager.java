@@ -1,14 +1,13 @@
 package ms.zero.tfmk.tfmkhidenseek.gamehandler;
 
+import ms.zero.tfmk.tfmkhidenseek.hologramhandler.HologramManager;
+import ms.zero.tfmk.tfmkhidenseek.hologramhandler.HologramRankingPreset;
 import ms.zero.tfmk.tfmkhidenseek.miscellaneous.Util;
-import ms.zero.tfmk.tfmkhidenseek.objects.GlowManager;
-import ms.zero.tfmk.tfmkhidenseek.objects.HologramManager;
-import ms.zero.tfmk.tfmkhidenseek.objects.NPCManager;
-import ms.zero.tfmk.tfmkhidenseek.objects.NameTagManager;
+import ms.zero.tfmk.tfmkhidenseek.npchandler.NPCManager;
+import ms.zero.tfmk.tfmkhidenseek.nmshandler.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -22,8 +21,7 @@ import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.GlobalVariable.*;
 import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.Util.translate;
 
 public class GameManager {
-    private static HashMap<Player, GameRule.PlayerType> playerTypeByPlayer = new HashMap<>();
-    private static ArrayList<Player> gamePlayers = new ArrayList<>();
+    private static HashMap<Player, GamePlayer> gamePlayers = new HashMap<>();
     private static Boolean gameStarted = false;
     private static Integer startCountDownTaskID = -1;
     private static Integer startTaskID = -1;
@@ -31,7 +29,7 @@ public class GameManager {
     private static Location baseLocation = new Location(Bukkit.getWorld("world"), 283.5, 76, -94.5, 180, 5);
     private static Location lobbyLocation = new Location(Bukkit.getWorld("world"), 283.5, 76, -104.5, 180, 5);
 
-    private static Location resultLocation = new Location(Bukkit.getWorld("world"), 283.5, 84, -106.5);
+    private static Location resultLocation = new Location(Bukkit.getWorld("world"), 283.5, 84, -105.5);
 
     static {
         for (int i = 0; i < 5; i++) {
@@ -60,11 +58,11 @@ public class GameManager {
 
     public static Boolean join(Player player) {
         if (!gameStarted && !alreadyJoined(player)) {
-            playerTypeByPlayer.put(player, PlayerType.RUNNER);
-            gamePlayers.add(player);
+            GamePlayer gamePlayer = new GamePlayer(player, PlayerType.RUNNER);
+            gamePlayers.put(player, gamePlayer);
             player.teleport(lobbyLocation);
             broadcastToPlayers(
-                    String.format(translate("&a[+] &f%s &7&o(현재 인원수: %d명)"), player.getName(), playerTypeByPlayer.size()));
+                    String.format(translate("&a[+] &f%s &7&o(현재 인원수: %d명)"), player.getName(), gamePlayers.size()));
             if (canGameStart() && startCountDownTaskID == -1 && startTaskID == -1) {
                 broadcastToPlayers(translate("&a[!] &730초 후 게임이 &a시작&7됩니다."));
                 startCountDownTaskID = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
@@ -88,11 +86,10 @@ public class GameManager {
 
     public static Boolean quit(Player player, GameRule.Reason reason) {
         if (!gameStarted && alreadyJoined(player)) {
-            playerTypeByPlayer.remove(player);
             gamePlayers.remove(player);
             player.teleport(baseLocation);
             broadcastToPlayers(
-                    String.format(translate("&c[-] &f%s &7&o(현재 인원수: %d명)"), player.getName(), playerTypeByPlayer.size()));
+                    String.format(translate("&c[-] &f%s &7&o(현재 인원수: %d명)"), player.getName(), gamePlayers.size()));
             player.sendMessage(translate("&c[-] &7게임에서 퇴장하셨습니다."));
             if (!canGameStart() && startCountDownTaskID != -1 && startTaskID != -1) {
                 broadcastToPlayers(translate("&c[!] &7최소인원이 부족하여 게임이 &c취소&7됩니다."));
@@ -112,11 +109,25 @@ public class GameManager {
         }
     }
 
-    private static Boolean isGameCanPlayable() {
-        if (getRunnerCount() == 0 || getTaggerCount() == 0) {
-            return false;
+    public static ArrayList<GamePlayer> getGamePlayerSet() {
+        return new ArrayList<>(gamePlayers.values());
+    }
+
+    private static GameRule.EndReason isGameEnded() {
+        if (GameScore.getPickedUpKeyScore() >= GameRule.getNeedKey()) {
+            return GameRule.EndReason.KEY_SUFFICIENT;
         }
-        return true;
+        if (getRunnerCount() == 0) {
+            return GameRule.EndReason.TAGGER_WIN;
+        }
+        if (!gameStarted) {
+            return GameRule.EndReason.TIMEOUT;
+        }
+        if (getTaggerCount() == 0) {
+            return GameRule.EndReason.TAGGER_INSUFFICIENT;
+        }
+
+        return GameRule.EndReason.CAN_PLAY;
     }
 
     public static Boolean isGameStarted() {
@@ -124,7 +135,7 @@ public class GameManager {
     }
 
     private static Boolean alreadyJoined(Player player) {
-        return gamePlayers.contains(player);
+        return gamePlayers.containsKey(player);
     }
 
     private static Boolean canGameStart() {
@@ -136,11 +147,11 @@ public class GameManager {
     }
 
     public static Boolean isTagger(Player player) {
-        return gamePlayers.contains(player) && playerTypeByPlayer.get(player) == PlayerType.TAGGER;
+        return gamePlayers.containsKey(player) && gamePlayers.get(player).getFinalPlayerType() == PlayerType.TAGGER;
     }
 
     public static Boolean isRunner(Player player) {
-        return gamePlayers.contains(player) && playerTypeByPlayer.get(player) == PlayerType.RUNNER;
+        return gamePlayers.containsKey(player) && gamePlayers.get(player).getFinalPlayerType() == PlayerType.RUNNER;
     }
 
     public static Integer getTaggerCount() {
@@ -152,27 +163,23 @@ public class GameManager {
     }
 
     public static List<Player> getTagger() {
-        return playerTypeByPlayer.keySet().stream()
-                .filter(player -> playerTypeByPlayer.get(player).equals(PlayerType.TAGGER))
-                .collect(Collectors.toList());
+        return gamePlayers.keySet().stream().filter(player -> gamePlayers.get(player).getFinalPlayerType() == PlayerType.TAGGER).collect(Collectors.toList());
     }
 
     public static List<Player> getRunner() {
-        return playerTypeByPlayer.keySet().stream()
-                .filter(player -> playerTypeByPlayer.get(player).equals(PlayerType.RUNNER))
-                .collect(Collectors.toList());
+        return gamePlayers.keySet().stream().filter(player -> gamePlayers.get(player).getFinalPlayerType() == PlayerType.RUNNER).collect(Collectors.toList());
     }
 
     public static String getRole(Player player) {
-        return playerTypeByPlayer.get(player).equals(PlayerType.RUNNER) ? "도망자" : "술래";
+        return gamePlayers.get(player).getFinalPlayerType() == PlayerType.RUNNER ? "도망자" : "술래";
     }
 
     private static void broadcastToPlayers(String message) {
-        gamePlayers.forEach(player -> player.sendMessage(message));
+        gamePlayers.forEach((player, gamePlayer) -> player.sendMessage(message));
     }
 
     private static void broadcastToPlayers(String title, String subTitle, int seconds) {
-        gamePlayers.forEach(player -> player.sendTitle(title, subTitle, 0, 20 * seconds, 0));
+        gamePlayers.forEach((player, gamePlayer) -> player.sendTitle(title, subTitle, 0, 20 * seconds, 0));
     }
 
     private static void broadcastToTagger(String message) {
@@ -188,13 +195,14 @@ public class GameManager {
     }
 
     private static void initTagger() {
-        Collections.shuffle(gamePlayers);
+        ArrayList<Player> shuffledPlayers = new ArrayList<>(gamePlayers.keySet());
+        Collections.shuffle(shuffledPlayers);
         for (int i = 0; i < GameRule.getLeastTaggers(); i++) {
-            Integer r = getRandomIndex();
-            Bukkit.getPlayer("Bamboo_Photo").sendMessage(String.format(translate("&c[DEBUG] random_index: %d"), r));
-            Player p = gamePlayers.get(r);
-            playerTypeByPlayer.put(p, PlayerType.TAGGER);
-            makeTagger(p);
+            Integer randomIndex = getRandomIndex(shuffledPlayers);
+            Player tagger = shuffledPlayers.get(randomIndex);
+            gamePlayers.get(tagger).setInitialPlayerType(PlayerType.TAGGER);
+            gamePlayers.get(tagger).setFinalPlayerType(PlayerType.TAGGER);
+            makeTagger(tagger);
         }
         GameScore.initPlayers(getTaggerCount(), getRunnerCount());
         broadcastToRunner(translate("&a휴, 살았다!"), translate("&f당신은 도망자입니다. 술래로부터 도망가세요!"), 7);
@@ -217,8 +225,8 @@ public class GameManager {
 
     private static Integer getRemainingRunner() {
         Integer count = 0;
-        for (Player player : gamePlayers) {
-            if (playerTypeByPlayer.get(player).equals(PlayerType.RUNNER)) {
+        for (Player player : gamePlayers.keySet()) {
+            if (gamePlayers.get(player).getFinalPlayerType() == PlayerType.RUNNER) {
                 count++;
             }
         }
@@ -226,45 +234,42 @@ public class GameManager {
         return count;
     }
 
-    public static void catchTheRunner(Player player) {
-        if (isRunner(player)) {
-            playerTypeByPlayer.put(player, PlayerType.TAGGER);
-            makeTagger(player);
+    public static void catchTheRunner(Player attacker, Player victim) {
+        if (isRunner(victim)) {
+            gamePlayers.get(victim).setFinalPlayerType(PlayerType.TAGGER);
+            makeTagger(victim);
 
             GameScore.decreaseRunner();
-            for (int i = 0; i < GameScore.getPickedUpKeyByPlayer(player); i++) {
+            for (int i = 0; i < gamePlayers.get(victim).getPickedUpKeyScore(); i++) {
                 KeyDropper.spawnKey();
             }
-            GameScore.runnerDroppedKey(player);
+            GameScore.runnerDroppedKey(gamePlayers.get(victim).getPickedUpKeyScore());
 
-            if (isGameCanPlayable()) {
-                broadcastToPlayers(String.format(translate("&c[!] &f%s&7님이 술래가 되었습니다."), player.getName()));
+            gamePlayers.get(attacker).addKillScore();
+
+            GameRule.EndReason endReason = isGameEnded();
+            if (endReason == GameRule.EndReason.CAN_PLAY) {
+                broadcastToPlayers(String.format(translate("&c[!] &f%s&7님이 술래가 되었습니다."), victim.getName()));
                 broadcastToPlayers(String.format(translate("&c[!] &7도망자가 &e%d&7명 남았습니다."), getRemainingRunner()));
                 broadcastToPlayers(translate("&c[!] &7도망자가 죽은 자리에 열쇠가 떨어집니다."));
-            } else {
+            } else if (endReason == GameRule.EndReason.TAGGER_WIN) {
                 endGame();
             }
         }
     }
 
-    private static void initScore() {
-        GameScore.initScores();
-        for (Player player : gamePlayers) {
-            GameScore.addGamePlayer(player, 0);
-        }
-    }
-
     private static void finalizeGame() {
-        NameTagManager.showNameTag(gamePlayers);
+        NameTagManager.showNameTag(new ArrayList<>(gamePlayers.keySet()));
+        gamePlayers.forEach((player, gamePlayer) -> player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard()));
+
 
         installBarrier();
-        gamePlayers.forEach(player -> player.teleport(baseLocation));
+        gamePlayers.forEach((player, gamePlayer) -> player.teleport(baseLocation));
 
         KeyDropper.reset();
 
-        playerTypeByPlayer.clear();
         gamePlayers.clear();
-
+        GameScore.initScores();
         startCountDownTaskID = -1;
         startTaskID = -1;
     }
@@ -302,23 +307,24 @@ public class GameManager {
 
     public static void makePlayerGlowing(Player player) {
         GlowManager.add(player);
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-            @Override
-            public void run() {
-                GlowManager.remove(player);
-            }
-        }, 20L * 10);
+
+        GlowManager.remove(player);
     }
 
     public static void pickUpKey(Player player) {
-        GameScore.runnerPickedUpKey(player);
+        GameScore.runnerPickedUpKey();
+        gamePlayers.get(player).addPickedUpKeyScore();
         makePlayerGlowing(player);
+
+        if (isGameEnded() == GameRule.EndReason.KEY_SUFFICIENT) {
+            endGame();
+        }
     }
 
-    private static Integer getRandomIndex() {
+    private static Integer getRandomIndex(List<Player> shuffledPlayers) {
         int randomValue = (int) (Math.random() * gamePlayers.size());
-        if (playerTypeByPlayer.get(gamePlayers.get(randomValue)).equals(PlayerType.TAGGER)) {
-            return getRandomIndex();
+        if (gamePlayers.get(shuffledPlayers.get(randomValue)).getFinalPlayerType() == PlayerType.TAGGER) {
+            return getRandomIndex(shuffledPlayers);
         } else {
             return randomValue;
         }
@@ -362,53 +368,83 @@ public class GameManager {
     private static void showStatistics() {
         clearTagger();
         clearRunner();
-        gamePlayers.forEach(player -> player.teleport(resultLocation));
-        NPCManager.showNPC(gamePlayers);
-        gamePlayers.forEach(player -> showRankingHologram(player));
+        gamePlayers.forEach((player, gamePlayers) -> {
+            PotionEffect eInvisible = new PotionEffect(PotionEffectType.INVISIBILITY, 30 * 20, 1, false, false);
+            player.addPotionEffect(eInvisible);
+        });
+        gamePlayers.forEach((player, gamePlayer) -> player.teleport(resultLocation));
+
+        gamePlayers.forEach(((player, gamePlayer) -> {
+            showRankingHologram(player);
+            NPCManager.showNPC(player);
+        }));
+        HologramManager.initListener();
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
             public void run() {
-                NPCManager.removeNPC();
+                HologramManager.removeListener();
+                gamePlayers.forEach((player, gamePlayer) -> {
+                    NPCManager.removeNPC(player);
+                    HologramManager.removeHolograms(player);
+                });
+                HologramManager.cleartest();
+                finalizeGame();
             }
-        }, 20L * 20);
-        //hologram managers
+        }, 20L * 30);
     }
 
     private static void showRankingHologram(Player player) {
-        HologramManager.createHologram(player, new Location(world, 282.5, 86, -101.5), "test1", false);
-        HologramManager.createHologram(player, new Location(world, 282.5, 86.35, -101.5), "test2", false);
-        HologramManager.createHologram(player, new Location(world, 282.5, 86.7, -101.5), "test3", false);
+        HologramManager.createHologram(player, new Location(world, 282.5, 86, -101.5), String.format(translate("&f처음 역할: &a%s"), gamePlayers.get(player).getInitialPlayerType().name()), false);
+        HologramManager.createHologram(player, new Location(world, 282.5, 86.35, -101.5), String.format(translate("&f최종 역할: &c%s"), gamePlayers.get(player).getFinalPlayerType().name()), false);
+        HologramManager.createHologram(player, new Location(world, 282.5, 86.7, -101.5), String.format(translate("&f획득한 키: &3%d&f개"), gamePlayers.get(player).getPickedUpKeyScore()), false);
+        HologramManager.createHologram(player, new Location(world, 282.5, 87.05, -101.5), String.format(translate("&c죽인 사람: &4%d&f명"), gamePlayers.get(player).getKillScore()), false);
+
+        HologramRankingPreset.getKillRanking().forEach(hologram -> {
+            Bukkit.broadcastMessage(String.format("Player: %s, text: %s", player.getName(), hologram.getHologramText()));
+            HologramManager.createHologram(player, hologram.getHologramLocation(), hologram.getHologramText(), hologram.getClickable());
+        });
+
     }
 
     private static void ending() {
-        if (isGameCanPlayable()) {
-            // Runner WIN
-            broadcastToPlayers(translate("&e게임 종료!"), translate("&e도망자들이 저택을 성공적으로 탈출했습니다!"), 10);
-        } else {
-            // Tagger WIN
-            broadcastToPlayers(translate("&e게임 종료!"), translate("&c술래가 도망자들을 전부 고기로 만들어버렸습니다..."), 10);
+        switch (isGameEnded()) {
+            case KEY_SUFFICIENT:
+            case TIMEOUT:
+                broadcastToPlayers(translate("&e게임 종료!"), translate("&e도망자들이 저택을 성공적으로 탈출했습니다!"), 10);
+                break;
+            case TAGGER_WIN:
+                broadcastToPlayers(translate("&e게임 종료!"), translate("&c술래가 도망자들을 전부 고기로 만들어버렸습니다..."), 10);
+                break;
         }
+
+        gamePlayers.forEach((player, gamePlayer) -> GlowManager.remove(player));
+        HologramRankingPreset.resetRanking();
+        HologramRankingPreset.updateRanking();
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
             public void run() {
                 showStatistics();
             }
         }, 20L * 5);
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-            @Override
-            public void run() {
-                finalizeGame();
-            }
-        }, 20L * 25);
     }
 
     public static void startGame() {
         gameStarted = true;
 
-        NameTagManager.hideNameTag(gamePlayers);
+        GameScore.setEndTime(System.currentTimeMillis() + 220 * 1000);
+
+        GameScoreboard.initApplyList(new ArrayList<>(gamePlayers.values()));
+
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+            @Override
+            public void run() {
+                GameScoreboard.showScoreBoard();
+            }
+        }, 0, 5L);
+
+        NameTagManager.hideNameTag(new ArrayList<>(gamePlayers.keySet()));
 
         if (gameStarted) {
-            initScore();
             removeBarrier();
             broadcastToPlayers(translate("&a게임 시작!"), translate("&f움직이세요!"), 7);
             broadcastToPlayers(translate("&c[!] &730초 후 &c술래&7가 정해집니다."));
