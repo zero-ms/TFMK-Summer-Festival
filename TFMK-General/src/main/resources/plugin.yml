@@ -1,0 +1,6 @@
+name: Tfmkgeneral
+version: '${version}'
+main: ms.zero.tfmk.tfmkgeneral.Tfmkgeneral
+api-version: 1.16
+prefix: TFMK-General
+description: General managing plugin

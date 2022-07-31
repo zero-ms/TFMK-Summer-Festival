@@ -6,6 +6,7 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import ms.zero.tfmk.tfmkhidenseek.gamehandler.GameManager;
 import ms.zero.tfmk.tfmkhidenseek.gamehandler.GameRule;
+import ms.zero.tfmk.tfmkhidenseek.miscellaneous.HotelChecker;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -32,8 +33,12 @@ public class EventListener implements Listener {
         String npcName = ChatColor.stripColor(npcRightClickEvent.getNPC().getName());
         Player clicker = npcRightClickEvent.getClicker();
         if (npcName.equalsIgnoreCase("참가하기")) {
-            if (!GameManager.join(clicker)) {
-                clicker.sendMessage(translate("&6[TFMK] &7참가할 수 없습니다."));
+            if (HotelChecker.isPlayerAlreadyAssigned(clicker)) {
+                if (!GameManager.join(clicker)) {
+                    clicker.sendMessage(translate("&6[TFMK] &7참가할 수 없습니다."));
+                }
+            } else {
+                clicker.sendMessage(translate("&6[TFMK] &7호텔 체크인을 먼저 해주세요."));
             }
         } else if (npcName.equalsIgnoreCase("퇴장하기")) {
             if (!GameManager.quit(clicker, GameRule.Reason.NPC)) {

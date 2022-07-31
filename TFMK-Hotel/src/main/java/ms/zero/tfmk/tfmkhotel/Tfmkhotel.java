@@ -7,8 +7,11 @@ import ms.zero.tfmk.tfmkhotel.miscellaneous.FileManager;
 import static ms.zero.tfmk.tfmkhotel.miscellaneous.GlobalVariable.*;
 import static ms.zero.tfmk.tfmkhotel.miscellaneous.Util.translate;
 
+import ms.zero.tfmk.tfmkhotel.objects.HotelManger;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.UUID;
 
 public final class Tfmkhotel extends JavaPlugin {
 
@@ -29,5 +32,8 @@ public final class Tfmkhotel extends JavaPlugin {
     @Override
     public void onDisable() {
         Bukkit.getConsoleSender().sendMessage(translate("&aTFMK-Hotel 플러그인이 활성화 되었습니다."));
+    }
+    public static Boolean isPlayerAssignedRoom(UUID u) {
+        return HotelManger.isPlayerAlreadyAssigned(u);
     }
 }
