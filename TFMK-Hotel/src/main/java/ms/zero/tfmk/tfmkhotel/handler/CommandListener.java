@@ -27,6 +27,7 @@ public class CommandListener implements CommandExecutor {
                                 break;
                             case ALREADY_ASSIGNED_PLAYER:
                                 p.sendMessage(translate("&a[TFMK] &7이미 방이 있습니다."));
+                                p.sendMessage(String.format(translate("&a[TFMK] &7손님의 방은 &6%d&7호 입니다."), HotelManger.get(p.getUniqueId()).getNumber()));
                                 break;
                             case ROOM_INSUFFICIENT:
                                 p.sendMessage(translate("&a[TFMK] &7방이 &c부족&7합니다. 관리자에게 문의하세요."));

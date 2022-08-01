@@ -30,6 +30,6 @@ public class JoinQuitEvent implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent playerQuitEvent) {
         Player player = playerQuitEvent.getPlayer();
-        playerQuitEvent.setQuitMessage(String.format(translate("&c[-] &f%s &7&o(%d명)"), player.getName(), Bukkit.getOnlinePlayers().size()));
+        playerQuitEvent.setQuitMessage(String.format(translate("&c[-] &f%s &7&o(%d명)"), player.getName(), Bukkit.getOnlinePlayers().size() - 1));
     }
 }
