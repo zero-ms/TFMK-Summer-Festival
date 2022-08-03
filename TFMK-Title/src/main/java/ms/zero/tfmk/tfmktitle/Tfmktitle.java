@@ -1,11 +1,11 @@
 package ms.zero.tfmk.tfmktitle;
 
-import ms.zero.tfmk.tfmktitle.handler.CommandListener;
+import ms.zero.tfmk.tfmktitle.command.CommandListener;
 import ms.zero.tfmk.tfmktitle.objects.TeamManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import ms.zero.tfmk.tfmktitle.handler.EventListener;
+import ms.zero.tfmk.tfmktitle.event.EventListener;
 
 public final class Tfmktitle extends JavaPlugin {
 

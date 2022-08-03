@@ -1,13 +1,13 @@
 package ms.zero.tfmk.tfmkhotel;
 
-import ms.zero.tfmk.tfmkhotel.handler.CommandListener;
-import ms.zero.tfmk.tfmkhotel.handler.EventListener;
-import ms.zero.tfmk.tfmkhotel.handler.TabCompleter;
-import ms.zero.tfmk.tfmkhotel.miscellaneous.FileManager;
-import static ms.zero.tfmk.tfmkhotel.miscellaneous.GlobalVariable.*;
-import static ms.zero.tfmk.tfmkhotel.miscellaneous.Util.translate;
+import ms.zero.tfmk.tfmkhotel.command.CommandListener;
+import ms.zero.tfmk.tfmkhotel.event.EventListener;
+import ms.zero.tfmk.tfmkhotel.event.TabCompleter;
+import ms.zero.tfmk.tfmkhotel.file.FileManager;
+import static ms.zero.tfmk.tfmkhotel.global.GlobalVariable.*;
+import static ms.zero.tfmk.tfmkhotel.global.Util.translate;
 
-import ms.zero.tfmk.tfmkhotel.objects.HotelManger;
+import ms.zero.tfmk.tfmkhotel.hotel.HotelManger;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 

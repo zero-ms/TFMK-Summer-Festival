@@ -5,15 +5,12 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.ScoreboardManager;
-import org.bukkit.scoreboard.Team;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ms.zero.tfmk.tfmktitle.miscellaneous.Util.translate;
+import static ms.zero.tfmk.tfmktitle.global.Util.translate;
 
 public class TeamManager {
     public static void updatePlayersTeam() {

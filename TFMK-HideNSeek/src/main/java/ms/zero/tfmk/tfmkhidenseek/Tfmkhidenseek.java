@@ -1,17 +1,16 @@
 package ms.zero.tfmk.tfmkhidenseek;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketEvent;
-import ms.zero.tfmk.tfmkhidenseek.handler.CommandListener;
-import ms.zero.tfmk.tfmkhidenseek.handler.EventListener;
-import ms.zero.tfmk.tfmkhidenseek.handler.FileHandler;
-import ms.zero.tfmk.tfmkhidenseek.handler.TabCompleter;
+import ms.zero.tfmk.tfmkhidenseek.command.CommandListener;
+import ms.zero.tfmk.tfmkhidenseek.event.GameEvent;
+import ms.zero.tfmk.tfmkhidenseek.event.NPCEvent;
+import ms.zero.tfmk.tfmkhidenseek.file.KeyLocationFileHandler;
+import ms.zero.tfmk.tfmkhidenseek.file.SettingFileHandler;
+import ms.zero.tfmk.tfmkhidenseek.file.TabCompleter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.Util.*;
-import static ms.zero.tfmk.tfmkhidenseek.miscellaneous.GlobalVariable.*;
+import static ms.zero.tfmk.tfmkhidenseek.global.Util.*;
+import static ms.zero.tfmk.tfmkhidenseek.global.GlobalVariable.*;
 
 public final class Tfmkhidenseek extends JavaPlugin {
 
@@ -21,14 +20,15 @@ public final class Tfmkhidenseek extends JavaPlugin {
 
         plugin = this;
 
-        FileHandler.initSettingFile();
-        FileHandler.initKeyDropListFile();
+        KeyLocationFileHandler.initFile();
+        SettingFileHandler.initFile();
 
         getCommand("game").setExecutor(new CommandListener());
         getCommand("game").setTabCompleter(new TabCompleter());
         getCommand("이스터에그").setExecutor(new CommandListener());
 
-        getServer().getPluginManager().registerEvents(new EventListener(), this);
+        getServer().getPluginManager().registerEvents(new GameEvent(), this);
+        getServer().getPluginManager().registerEvents(new NPCEvent(), this);
     }
 
     @Override

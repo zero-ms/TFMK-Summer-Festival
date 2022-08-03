@@ -3,7 +3,6 @@ plugins {
 }
 
 group = 'ms.zero.tfmk'
-version = '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()

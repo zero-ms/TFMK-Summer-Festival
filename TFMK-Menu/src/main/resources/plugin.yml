@@ -1,0 +1,6 @@
+name: Tfmkmenu
+version: '${version}'
+main: ms.zero.tfmk.tfmkmenu.Tfmkmenu
+api-version: 1.16
+prefix: TFMK-Menu
+description: Warp Menu plugin
