@@ -7,7 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,7 +45,7 @@ public class NameTagManager {
         updatePlayerPrefix();
     }
 
-    private static void updatePlayerPrefix() {
+    private static void updatePlayerPrefix() throws NullPointerException {
         Class tfmkTitlePlugin = Bukkit.getPluginManager().getPlugin("Tfmktitle").getClass();
         try {
             Method updateMethod = tfmkTitlePlugin.getMethod("updatePlayersTeam", null);
@@ -67,7 +67,7 @@ public class NameTagManager {
         scoreboardTeam = new WrapperPlayServerScoreboardTeam();
         scoreboardTeam.setName("hidenseek-team");
         scoreboardTeam.setMode(WrapperPlayServerScoreboardTeam.Mode.PLAYERS_ADDED);
-        scoreboardTeam.setPlayers(Arrays.asList(targetEntityName));
+        scoreboardTeam.setPlayers(Collections.singletonList(targetEntityName));
         scoreboardTeam.sendPacket(targetPlayer);
 
     }
@@ -76,7 +76,7 @@ public class NameTagManager {
         WrapperPlayServerScoreboardTeam scoreboardTeam = new WrapperPlayServerScoreboardTeam();
         scoreboardTeam.setName("hidenseek-team");
         scoreboardTeam.setMode(WrapperPlayServerScoreboardTeam.Mode.PLAYERS_REMOVED);
-        scoreboardTeam.setPlayers(Arrays.asList(name));
+        scoreboardTeam.setPlayers(Collections.singletonList(name));
         scoreboardTeam.sendPacket(targetPlayer);
     }
 }

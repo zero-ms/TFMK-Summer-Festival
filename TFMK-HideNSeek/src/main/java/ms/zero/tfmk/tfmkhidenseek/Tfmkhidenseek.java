@@ -1,11 +1,11 @@
 package ms.zero.tfmk.tfmkhidenseek;
 
 import ms.zero.tfmk.tfmkhidenseek.command.CommandListener;
+import ms.zero.tfmk.tfmkhidenseek.command.TabCompleter;
 import ms.zero.tfmk.tfmkhidenseek.event.GameEvent;
 import ms.zero.tfmk.tfmkhidenseek.event.NPCEvent;
 import ms.zero.tfmk.tfmkhidenseek.file.KeyLocationFileHandler;
 import ms.zero.tfmk.tfmkhidenseek.file.SettingFileHandler;
-import ms.zero.tfmk.tfmkhidenseek.file.TabCompleter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 

@@ -2,6 +2,7 @@ package ms.zero.tfmk.tfmkhidenseek.event;
 
 import ms.zero.tfmk.tfmkhidenseek.game.GameManager;
 import ms.zero.tfmk.tfmkhidenseek.game.util.GameRule;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,6 +16,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import static ms.zero.tfmk.tfmkhidenseek.game.util.GameVariable.*;
+import static ms.zero.tfmk.tfmkhidenseek.global.Util.translate;
 
 public class GameEvent implements Listener {
 
@@ -23,9 +25,19 @@ public class GameEvent implements Listener {
         Player offlinePlayer = playerQuitEvent.getPlayer();
         if (GameManager.isPlaying(offlinePlayer)) {
             if (GameManager.isGameStarted()) {
-                GameManager.quit(offlinePlayer, GameRule.Reason.FORCE);
+                try {
+                    GameManager.quit(offlinePlayer, GameRule.Reason.FORCE);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    GameManager.interruptGame();
+                }
             } else {
-                GameManager.quit(offlinePlayer, GameRule.Reason.NPC);
+                try {
+                    GameManager.quit(offlinePlayer, GameRule.Reason.NPC);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    GameManager.interruptGame();
+                }
             }
 
         }
@@ -72,7 +84,12 @@ public class GameEvent implements Listener {
             Player attacker = (Player) entityDamageByEntityEvent.getDamager();
             if (GameManager.isTagger(attacker) && GameManager.isRunner(victim)) {
                 if (GameManager.isGameStarted()) {
-                    GameManager.catchTheRunner(attacker, victim);
+                    try {
+                        GameManager.catchTheRunner(attacker, victim);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        GameManager.interruptGame();
+                    }
                 } else {
                     entityDamageByEntityEvent.setCancelled(true);
                 }

@@ -1,4 +1,4 @@
-package ms.zero.tfmk.tfmkhidenseek.file;
+package ms.zero.tfmk.tfmkhidenseek.command;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

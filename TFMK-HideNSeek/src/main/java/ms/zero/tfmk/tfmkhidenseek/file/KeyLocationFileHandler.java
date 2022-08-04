@@ -16,8 +16,12 @@ public class KeyLocationFileHandler extends FileHandler {
     public static void initFile() {
         fileName = "drop_list.dat";
         checkPluginFolder();
-        createFile();
-        getKeyLocation();
+        try {
+            createFile();
+            getKeyLocation();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     private static Location parseLocationFromString(String context) {

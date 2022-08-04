@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
@@ -42,12 +42,7 @@ public class NPC {
     }
 
     public void spawnNPC(Player npcWatcher) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-            @Override
-            public void run() {
-                sendSpawnNPCPacket(npcWatcher);
-            }
-        });
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> sendSpawnNPCPacket(npcWatcher));
     }
 
     private void sendSpawnNPCPacket(Player player) {
@@ -62,7 +57,7 @@ public class NPC {
                 EnumWrappers.NativeGameMode.CREATIVE,
                 WrappedChatComponent.fromText(npcName));
         playerInfo.setAction(EnumWrappers.PlayerInfoAction.ADD_PLAYER);
-        playerInfo.setData(Arrays.asList(playerInfoData));
+        playerInfo.setData(Collections.singletonList(playerInfoData));
         playerInfo.sendPacket(player);
 
         WrapperPlayServerNamedEntitySpawn namedEntitySpawn = new WrapperPlayServerNamedEntitySpawn();
@@ -95,13 +90,10 @@ public class NPC {
 
         NameTagManager.hideNameTag(player, npcName);
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-            @Override
-            public void run() {
-                playerInfo.setAction(EnumWrappers.PlayerInfoAction.REMOVE_PLAYER);
-                playerInfo.setData(Arrays.asList(playerInfoData));
-                playerInfo.sendPacket(player);
-            }
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            playerInfo.setAction(EnumWrappers.PlayerInfoAction.REMOVE_PLAYER);
+            playerInfo.setData(Collections.singletonList(playerInfoData));
+            playerInfo.sendPacket(player);
         }, 5L);
     }
 
@@ -177,7 +169,7 @@ public class NPC {
         try {
             String targetUrl = String.format(
                     "https://sessionserver.mojang.com/session/minecraft/profile/%s/?unsigned=false",
-                    player.getUniqueId().toString());
+                    player.getUniqueId());
             URL url = new URL(targetUrl);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET"); // optional default is GET
@@ -185,7 +177,7 @@ public class NPC {
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 
             String inputLine;
-            StringBuffer response = new StringBuffer();
+            StringBuilder response = new StringBuilder();
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
             }

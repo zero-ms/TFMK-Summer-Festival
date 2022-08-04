@@ -1,9 +1,0 @@
-name: Tfmkfishing
-version: '${version}'
-main: ms.zero.tfmk.tfmkfishing.Tfmkfishing
-api-version: 1.16
-prefix: TFMK-Fishing
-commands:
-  fishing:
-    description: Fishing command.
-depend: [ProtocolLib]

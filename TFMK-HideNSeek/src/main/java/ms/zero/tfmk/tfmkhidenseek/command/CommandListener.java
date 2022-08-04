@@ -16,19 +16,23 @@ public class CommandListener implements CommandExecutor {
         Player commandSender = (Player) sender;
         if (label.equalsIgnoreCase("game")) {
             if (args.length > 0) {
-                if (args[0].equalsIgnoreCase("toggle")) {
+                if (commandSender.isOp()) {
+                    if (args[0].equalsIgnoreCase("toggle")) {
 
-                } else if (args[0].equalsIgnoreCase("stop")) {
-                    GameManager.interruptGame();
-                } else if (args[0].equalsIgnoreCase("status")) {
-                    commandSender.sendMessage(
-                            String.format(translate("&c[DEBUG] &7drop_key: %d pick_key: %d tagger: %d runner: %d"),
-                                    GameScore.getDroppedKeyScore(), GameScore.getPickedUpKeyScore(),
-                                    GameScore.getTaggerCount(),
-                                    GameScore.getRunnerCount()));
-                    commandSender.sendMessage(
-                            String.format(translate("&c[DEBUG] &7least_player: %d least_tagger: %d need_key: %d"),
-                                    GameRule.getMinPlayers(), GameRule.getLeastTaggers(), GameRule.getNeedKey()));
+                    } else if (args[0].equalsIgnoreCase("stop")) {
+                        GameManager.interruptGame();
+                    } else if (args[0].equalsIgnoreCase("status")) {
+                        commandSender.sendMessage(
+                                String.format(translate("&c[DEBUG] &7drop_key: %d pick_key: %d tagger: %d runner: %d"),
+                                        GameScore.getDroppedKeyScore(), GameScore.getPickedUpKeyScore(),
+                                        GameScore.getTaggerCount(),
+                                        GameScore.getRunnerCount()));
+                        commandSender.sendMessage(
+                                String.format(translate("&c[DEBUG] &7least_player: %d least_tagger: %d need_key: %d"),
+                                        GameRule.getMinPlayers(), GameRule.getLeastTaggers(), GameRule.getNeedKey()));
+                    }
+                } else {
+                    commandSender.sendMessage(translate("&c[ERROR] &7권한이 없습니다."));
                 }
             }
             return true;

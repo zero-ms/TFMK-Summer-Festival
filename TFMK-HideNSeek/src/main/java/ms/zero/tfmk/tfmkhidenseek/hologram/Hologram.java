@@ -8,10 +8,11 @@ import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
-import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class Hologram {
 
@@ -70,12 +71,12 @@ public class Hologram {
 
     private void sendEntityDestroyPacket(Player targetPlayer) {
         WrapperPlayServerEntityDestroy armorStandDestroy = new WrapperPlayServerEntityDestroy();
-        armorStandDestroy.setEntityIds(Collections.singletonList(this.armorStandID).stream().mapToInt(i -> i).toArray());
+        armorStandDestroy.setEntityIds(Stream.of(this.armorStandID).mapToInt(i -> i).toArray());
         armorStandDestroy.sendPacket(targetPlayer);
 
         if (clickable) {
             WrapperPlayServerEntityDestroy slimeDestroy = new WrapperPlayServerEntityDestroy();
-            slimeDestroy.setEntityIds(Collections.singletonList(this.clickableEntity.getSlimeEntityID()).stream().mapToInt(i -> i).toArray());
+            slimeDestroy.setEntityIds(Stream.of(this.clickableEntity.getSlimeEntityID()).mapToInt(i -> i).toArray());
             slimeDestroy.sendPacket(targetPlayer);
         }
     }
@@ -173,7 +174,7 @@ public class Hologram {
 
     public Boolean checkClickable(Integer slimeEntityID) {
         if (clickable) {
-            if (this.clickableEntity.getSlimeEntityID() == slimeEntityID) {
+            if (Objects.equals(this.clickableEntity.getSlimeEntityID(), slimeEntityID)) {
                 return true;
             } else {
                 return false;

@@ -1,6 +1,8 @@
 package ms.zero.tfmk.tfmkfishing.command;
 
 import ms.zero.tfmk.tfmkfishing.fishing.ContestManager;
+import ms.zero.tfmk.tfmkfishing.fishing.objects.FishType;
+import ms.zero.tfmk.tfmkfishing.fishing.util.FishInfo;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -22,6 +24,17 @@ public class FishCommand implements CommandExecutor {
                         return true;
                     } else {
                         commandSender.sendMessage(translate("&c[ERROR] &7권한이 없습니다."));
+                    }
+                } else if (args[0].equalsIgnoreCase("give")) {
+                    if (commandSender.isOp()) {
+                        commandSender.getInventory().addItem(FishInfo.getItemFromFishType(FishType.RED_SEABREAM),
+                                FishInfo.getItemFromFishType(FishType.MANDARIN_FISH),
+                                FishInfo.getItemFromFishType(FishType.SALMON),
+                                FishInfo.getItemFromFishType(FishType.SEAWEED),
+                                FishInfo.getItemFromFishType(FishType.BLOWFISH),
+                                FishInfo.getItemFromFishType(FishType.SEASHELL));
+                    } else {
+                        commandSender.sendMessage(translate("&c[DEBUG] &7권한이 없습니다."));
                     }
                 }
             }

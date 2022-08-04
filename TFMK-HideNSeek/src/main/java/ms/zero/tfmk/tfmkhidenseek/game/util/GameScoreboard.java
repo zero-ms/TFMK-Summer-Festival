@@ -42,9 +42,9 @@ public class GameScoreboard {
 
     private static String getRemainingTime() {
         Long currentTime = System.currentTimeMillis();
-        Long differentTime = GameScore.getEndTime() - currentTime;
+        long differentTime = GameScore.getEndTime() - currentTime;
         differentTime /= 1000;
-        return formatingTime(differentTime.intValue());
+        return formatingTime((int) differentTime);
     }
 
     private static String formatingTime(Integer unformattedTime) {

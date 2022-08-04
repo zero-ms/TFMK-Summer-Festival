@@ -1,9 +1,9 @@
 package ms.zero.tfmk.tfmkhidenseek.game.util;
 
 public class GameRule {
-    private static Integer minPlayers;
-    private static Integer leastTaggers;
-    private static Integer needKey;
+    private static Integer minPlayers = 0;
+    private static Integer leastTaggers = 0;
+    private static Integer needKey = 0;
 
     public enum PlayerType {
         RUNNER,
