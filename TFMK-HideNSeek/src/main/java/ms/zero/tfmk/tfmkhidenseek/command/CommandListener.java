@@ -1,8 +1,8 @@
 package ms.zero.tfmk.tfmkhidenseek.command;
 
 import ms.zero.tfmk.tfmkhidenseek.game.GameManager;
-import ms.zero.tfmk.tfmkhidenseek.game.util.GameRule;
-import ms.zero.tfmk.tfmkhidenseek.game.util.GameScore;
+import ms.zero.tfmk.tfmkhidenseek.game.objects.GameRule;
+import ms.zero.tfmk.tfmkhidenseek.game.objects.GameScore;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

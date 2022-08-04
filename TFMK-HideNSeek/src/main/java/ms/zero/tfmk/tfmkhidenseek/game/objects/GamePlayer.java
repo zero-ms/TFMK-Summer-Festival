@@ -1,6 +1,5 @@
 package ms.zero.tfmk.tfmkhidenseek.game.objects;
 
-import ms.zero.tfmk.tfmkhidenseek.game.util.GameRule;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 

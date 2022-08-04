@@ -1,8 +1,8 @@
 package ms.zero.tfmk.tfmkhidenseek.event;
 
 import ms.zero.tfmk.tfmkhidenseek.game.GameManager;
-import ms.zero.tfmk.tfmkhidenseek.game.util.GameRule;
-import org.bukkit.Bukkit;
+import ms.zero.tfmk.tfmkhidenseek.game.objects.GameRule;
+import ms.zero.tfmk.tfmkhidenseek.game.objects.GameStatus;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,7 +16,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import static ms.zero.tfmk.tfmkhidenseek.game.util.GameVariable.*;
-import static ms.zero.tfmk.tfmkhidenseek.global.Util.translate;
 
 public class GameEvent implements Listener {
 
@@ -24,20 +23,10 @@ public class GameEvent implements Listener {
     public void onPlayerExit(PlayerQuitEvent playerQuitEvent) {
         Player offlinePlayer = playerQuitEvent.getPlayer();
         if (GameManager.isPlaying(offlinePlayer)) {
-            if (GameManager.isGameStarted()) {
-                try {
-                    GameManager.quit(offlinePlayer, GameRule.Reason.FORCE);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    GameManager.interruptGame();
-                }
+            if (GameManager.getGameStatus() == GameStatus.PLAYING || GameManager.getGameStatus() == GameStatus.ENDING) {
+                GameManager.quit(offlinePlayer, GameRule.Reason.FORCE);
             } else {
-                try {
-                    GameManager.quit(offlinePlayer, GameRule.Reason.NPC);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    GameManager.interruptGame();
-                }
+                GameManager.quit(offlinePlayer, GameRule.Reason.NPC);
             }
 
         }
@@ -83,7 +72,7 @@ public class GameEvent implements Listener {
             Player victim = (Player) entityDamageByEntityEvent.getEntity();
             Player attacker = (Player) entityDamageByEntityEvent.getDamager();
             if (GameManager.isTagger(attacker) && GameManager.isRunner(victim)) {
-                if (GameManager.isGameStarted()) {
+                if (GameManager.getGameStatus() == GameStatus.PLAYING) {
                     try {
                         GameManager.catchTheRunner(attacker, victim);
                     } catch (Exception ex) {
@@ -113,7 +102,7 @@ public class GameEvent implements Listener {
             if (pickedUpItem.getItemMeta().getDisplayName().equals(KEY_PIECE.getItemMeta().getDisplayName())) {
                 Player eventEntity = (Player) entityPickupItemEvent.getEntity();
                 if (GameManager.isRunner(eventEntity)) {
-                    if (GameManager.isGameStarted()) {
+                    if (GameManager.getGameStatus() == GameStatus.PLAYING) {
                         GameManager.pickUpKey((Player) entityPickupItemEvent.getEntity());
                     } else {
                         entityPickupItemEvent.setCancelled(true);

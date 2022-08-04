@@ -1,4 +1,4 @@
-package ms.zero.tfmk.tfmkhidenseek.game.util;
+package ms.zero.tfmk.tfmkhidenseek.game.objects;
 
 public class GameRule {
     private static Integer minPlayers = 0;

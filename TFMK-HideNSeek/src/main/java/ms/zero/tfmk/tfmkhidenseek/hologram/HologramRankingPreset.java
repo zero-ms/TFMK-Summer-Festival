@@ -1,7 +1,7 @@
 package ms.zero.tfmk.tfmkhidenseek.hologram;
 
 import ms.zero.tfmk.tfmkhidenseek.game.objects.GamePlayer;
-import ms.zero.tfmk.tfmkhidenseek.game.util.GameScore;
+import ms.zero.tfmk.tfmkhidenseek.game.objects.GameScore;
 import org.bukkit.Location;
 
 import java.util.ArrayList;

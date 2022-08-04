@@ -2,7 +2,7 @@ package ms.zero.tfmk.tfmkhidenseek.file;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import ms.zero.tfmk.tfmkhidenseek.game.util.GameRule;
+import ms.zero.tfmk.tfmkhidenseek.game.objects.GameRule;
 import ms.zero.tfmk.tfmkhidenseek.game.util.GameVariable;
 
 public class SettingFileHandler extends FileHandler {

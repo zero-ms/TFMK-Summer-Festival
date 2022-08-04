@@ -1,10 +1,7 @@
 package ms.zero.tfmk.tfmkhidenseek.game;
 
-import ms.zero.tfmk.tfmkhidenseek.game.objects.GamePlayer;
-import ms.zero.tfmk.tfmkhidenseek.game.objects.KeyDropper;
-import ms.zero.tfmk.tfmkhidenseek.game.util.GameRule;
-import ms.zero.tfmk.tfmkhidenseek.game.util.GameScore;
-import ms.zero.tfmk.tfmkhidenseek.game.util.GameScoreboard;
+import ms.zero.tfmk.tfmkhidenseek.game.objects.*;
+import ms.zero.tfmk.tfmkhidenseek.game.util.GameVariable;
 import ms.zero.tfmk.tfmkhidenseek.hologram.ChangeableHologramSet;
 import ms.zero.tfmk.tfmkhidenseek.hologram.HologramManager;
 import ms.zero.tfmk.tfmkhidenseek.hologram.HologramRankingPreset;
@@ -23,107 +20,100 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.*;
+import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 
-import static ms.zero.tfmk.tfmkhidenseek.game.util.GameRule.PlayerType;
+import static ms.zero.tfmk.tfmkhidenseek.game.objects.GameRule.PlayerType;
 import static ms.zero.tfmk.tfmkhidenseek.global.GlobalVariable.*;
 import static ms.zero.tfmk.tfmkhidenseek.global.Util.translate;
 import static ms.zero.tfmk.tfmkhidenseek.game.util.GameVariable.*;
 
 public class GameManager {
     private static HashMap<Player, GamePlayer> gamePlayers = new HashMap<>();
-    private static Boolean gameStarted = false;
+    private static GameStatus gameStatus = GameStatus.NOT_PLAYING;
     private static Boolean assignedRole = false;
     private static Integer startCountDownTaskID = -1;
     private static Integer startTaskID = -1;
-    private static Location[] barrierLocation = new Location[30];
-    private static Location baseLocation = new Location(Bukkit.getWorld("world"), 283.5, 76, -94.5, 180, 5);
-    private static Location lobbyLocation = new Location(Bukkit.getWorld("world"), 283.5, 76, -104.5, 180, 5);
 
-    private static Location resultLocation = new Location(Bukkit.getWorld("world"), 283.5, 84, -105.5);
-
-    static {
-        for (int i = 0; i < 5; i++) {
-            barrierLocation[i] = new Location(world, 275, 78, -103 + (i * -1));
-        }
-        for (int i = 5; i < 10; i++) {
-            barrierLocation[i] = new Location(world, 275, 77, -103 + ((i - 5) * -1));
-        }
-        for (int i = 10; i < 15; i++) {
-            barrierLocation[i] = new Location(world, 291, 78, -103 + ((i - 10) * -1));
-        }
-        for (int i = 15; i < 20; i++) {
-            barrierLocation[i] = new Location(world, 291, 77, -103 + ((i - 15) * -1));
-        }
-        for (int i = 20; i < 23; i++) {
-            barrierLocation[i] = new Location(world, 282 + (i - 20), 78, -108);
-        }
-        for (int i = 23; i < 26; i++) {
-            barrierLocation[i] = new Location(world, 282 + (i - 23), 77, -108);
-        }
-        barrierLocation[26] = new Location(world, 285, 79, -109);
-        barrierLocation[27] = new Location(world, 285, 78, -108);
-        barrierLocation[28] = new Location(world, 281, 79, -109);
-        barrierLocation[29] = new Location(world, 281, 78, -108);
-    }
+    private static Semaphore joinMutex = new Semaphore(1, true);
 
     public static Boolean join(Player player) {
-
-        if (!gameStarted && !isPlaying(player)) {
-            GamePlayer gamePlayer = new GamePlayer(player, PlayerType.RUNNER);
-            gamePlayers.put(player, gamePlayer);
-            player.teleport(lobbyLocation);
-            broadcastToPlayers(
-                    String.format(translate("&a[+] &f%s &7&o(현재 인원수: %d명)"), player.getName(), gamePlayers.size()));
-            if (canGameStart() && startCountDownTaskID == -1 && startTaskID == -1) {
-                broadcastToPlayers(translate("&a[!] &730초 후 게임이 &a시작&7됩니다."));
-                startCountDownTaskID = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> startCountDown(10, 1), 20L * 20);
-                startTaskID = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                    try {
-                        startGame();
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                        interruptGame();
-                    }
-                }, 20L * 30);
+        try {
+            joinMutex.acquire();
+            if ((gameStatus == GameStatus.NOT_PLAYING || gameStatus == GameStatus.WAITING) && !isPlaying(player)) {
+                GamePlayer gamePlayer = new GamePlayer(player, PlayerType.RUNNER);
+                gamePlayers.put(player, gamePlayer);
+                player.teleport(GameVariable.lobbyLocation);
+                broadcastToPlayers(
+                        String.format(translate("&a[+] &f%s &7&o(현재 인원수: %d명)"), player.getName(), gamePlayers.size()));
+                if (canGameStart() && startCountDownTaskID == -1 && startTaskID == -1) {
+                    broadcastToPlayers(translate("&a[!] &730초 후 게임이 &a시작&7됩니다."));
+                    startCountDownTaskID = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> startCountDown(10, 1), 20L * 20);
+                    startTaskID = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+                        try {
+                            startGame();
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            interruptGame();
+                        }
+                    }, 20L * 30);
+                }
+                joinMutex.release();
+                return true;
+            } else {
+                joinMutex.release();
+                return false;
             }
-
-            return true;
-        } else {
-
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+            joinMutex.release();
             return false;
         }
     }
 
-    public static Boolean quit(Player player, GameRule.Reason reason) throws Exception {
-        if (!gameStarted && isPlaying(player)) {
-            gamePlayers.remove(player);
-            player.teleport(baseLocation);
-            broadcastToPlayers(
-                    String.format(translate("&c[-] &f%s &7&o(현재 인원수: %d명)"), player.getName(), gamePlayers.size()));
-            player.sendMessage(translate("&c[-] &7게임에서 퇴장하셨습니다."));
-            if (!canGameStart() && startCountDownTaskID != -1 && startTaskID != -1) {
-                broadcastToPlayers(translate("&c[!] &7최소인원이 부족하여 게임이 &c취소&7됩니다."));
-                Bukkit.getScheduler().cancelTask(startCountDownTaskID);
-                Bukkit.getScheduler().cancelTask(startTaskID);
-                startCountDownTaskID = -1;
-                startTaskID = -1;
-            }
-
-            return true;
-        } else {
-            if (reason != GameRule.Reason.NPC) {
+    public static Boolean quit(Player player, GameRule.Reason reason) {
+        try {
+            joinMutex.acquire();
+            if ((gameStatus == GameStatus.NOT_PLAYING || gameStatus == GameStatus.WAITING) && isPlaying(player)) {
                 gamePlayers.remove(player);
-                player.teleport(baseLocation);
-                clearGameItems(player);
-
-                if (!canPlayable()) {
-                    interruptGame();
+                player.teleport(GameVariable.baseLocation);
+                broadcastToPlayers(
+                        String.format(translate("&c[-] &f%s &7&o(현재 인원수: %d명)"), player.getName(), gamePlayers.size()));
+                player.sendMessage(translate("&c[-] &7게임에서 퇴장하셨습니다."));
+                if (!canGameStart() && startCountDownTaskID != -1 && startTaskID != -1) {
+                    broadcastToPlayers(translate("&c[!] &7최소인원이 부족하여 게임이 &c취소&7됩니다."));
+                    Bukkit.getScheduler().cancelTask(startCountDownTaskID);
+                    Bukkit.getScheduler().cancelTask(startTaskID);
+                    startCountDownTaskID = -1;
+                    startTaskID = -1;
                 }
+                joinMutex.release();
+                return true;
+            } else {
+                if (reason == GameRule.Reason.FORCE) {
+                    player.teleport(GameVariable.baseLocation);
+                    try {
+                        clearGameItems(player);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                    gamePlayers.remove(player);
+                    joinMutex.release();
+                    if (gameStatus == GameStatus.PLAYING) {
+                        if (!canPlayable()) {
+                            interruptGame();
+                        }
+                    }
+                } else {
+                    joinMutex.release();
+                }
+                return false;
             }
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+            joinMutex.release();
             return false;
         }
-
     }
 
     public static ArrayList<GamePlayer> getGamePlayerSet() {
@@ -157,8 +147,8 @@ public class GameManager {
         return GameRule.EndReason.CAN_PLAY;
     }
 
-    public static Boolean isGameStarted() {
-        return gameStarted;
+    public static GameStatus getGameStatus() {
+        return gameStatus;
     }
 
     public static Boolean isPlaying(Player player) {
@@ -292,22 +282,28 @@ public class GameManager {
     }
 
     private static void finalizeGame() {
+        try {
+            clearGameItems();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
         NameTagManager.showEachPlayerNameTag(new ArrayList<>(gamePlayers.keySet()));
         gamePlayers.forEach(
                 (player, gamePlayer) -> player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard()));
         gamePlayers.forEach((player, gamePlayer) -> GlowManager.removeFromGlowingPool(player));
 
         installBarrier();
-        gamePlayers.forEach((player, gamePlayer) -> player.teleport(baseLocation));
+        gamePlayers.forEach((player, gamePlayer) -> player.teleport(GameVariable.baseLocation));
 
         KeyDropper.resetAllKeys();
 
         gamePlayers.clear();
         GameScore.initScores();
-        gameStarted = false;
-        assignedRole = false;
         startCountDownTaskID = -1;
         startTaskID = -1;
+        gameStatus = GameStatus.NOT_PLAYING;
+        assignedRole = false;
     }
 
     private static void clearTagger() throws Exception {
@@ -357,13 +353,13 @@ public class GameManager {
 
     private static void installBarrier() {
         for (int i = 0; i < 30; i++) {
-            barrierLocation[i].getBlock().setType(Material.BARRIER);
+            GameVariable.barrierLocation[i].getBlock().setType(Material.BARRIER);
         }
     }
 
     private static void removeBarrier() {
         for (int i = 0; i < 30; i++) {
-            barrierLocation[i].getBlock().setType(Material.AIR);
+            GameVariable.barrierLocation[i].getBlock().setType(Material.AIR);
         }
     }
 
@@ -464,7 +460,7 @@ public class GameManager {
             PotionEffect eInvisible = new PotionEffect(PotionEffectType.INVISIBILITY, 30 * 20, 1, false, false);
             player.addPotionEffect(eInvisible);
         });
-        gamePlayers.forEach((player, gamePlayer) -> player.teleport(resultLocation));
+        gamePlayers.forEach((player, gamePlayer) -> player.teleport(GameVariable.resultLocation));
 
         showNPCPart();
         showRankingPart();
@@ -481,6 +477,8 @@ public class GameManager {
     }
 
     private static void ending() throws Exception {
+        gameStatus = GameStatus.ENDING;
+
         switch (isGameEnded()) {
             case KEY_SUFFICIENT:
             case TIMEOUT:
@@ -508,8 +506,10 @@ public class GameManager {
         }, 20L * 5);
     }
 
-    public static void startGame() throws Exception {
-        gameStarted = true;
+    public static void startGame() throws InterruptedException {
+        joinMutex.acquire();
+        gameStatus = GameStatus.PLAYING;
+        joinMutex.release();
 
         GameScore.setEndTime(System.currentTimeMillis() + 220 * 1000);
 
@@ -556,26 +556,7 @@ public class GameManager {
     public static void interruptGame() {
         Bukkit.getScheduler().cancelTasks(plugin);
         broadcastToPlayers(translate("&c[NOTICE] &7게임이 중단되었습니다."));
-        NameTagManager.showEachPlayerNameTag(new ArrayList<>(gamePlayers.keySet()));
-        gamePlayers.forEach(
-                (player, gamePlayer) -> player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard()));
-        gamePlayers.forEach((player, gamePlayer) -> GlowManager.removeFromGlowingPool(player));
-        gamePlayers.forEach((player, gamePlayer) -> {
-            NPCManager.removeNPCFromPlayer(player);
-            HologramManager.clearAllHologramsFromPlayer(player);
-        });
-        HologramManager.clearAllHologramObjects();
 
-        installBarrier();
-        gamePlayers.forEach((player, gamePlayer) -> player.teleport(baseLocation));
-
-        KeyDropper.resetAllKeys();
-
-        gamePlayers.clear();
-        GameScore.initScores();
-        gameStarted = false;
-        assignedRole = false;
-        startCountDownTaskID = -1;
-        startTaskID = -1;
+        finalizeGame();
     }
 }

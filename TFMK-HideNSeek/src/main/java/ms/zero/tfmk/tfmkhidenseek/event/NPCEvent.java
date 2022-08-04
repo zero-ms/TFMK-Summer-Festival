@@ -7,7 +7,7 @@ import org.bukkit.event.Listener;
 
 import ms.zero.tfmk.tfmkhidenseek.game.GameManager;
 import ms.zero.tfmk.tfmkhidenseek.global.HotelChecker;
-import ms.zero.tfmk.tfmkhidenseek.game.util.GameRule;
+import ms.zero.tfmk.tfmkhidenseek.game.objects.GameRule;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
 
 import static ms.zero.tfmk.tfmkhidenseek.global.Util.*;

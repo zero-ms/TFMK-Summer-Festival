@@ -1,6 +1,5 @@
-package ms.zero.tfmk.tfmkhidenseek.game.util;
+package ms.zero.tfmk.tfmkhidenseek.game.objects;
 
-import ms.zero.tfmk.tfmkhidenseek.game.objects.GamePlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;

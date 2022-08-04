@@ -1,7 +1,6 @@
-package ms.zero.tfmk.tfmkhidenseek.game.util;
+package ms.zero.tfmk.tfmkhidenseek.game.objects;
 
 import ms.zero.tfmk.tfmkhidenseek.game.GameManager;
-import ms.zero.tfmk.tfmkhidenseek.game.objects.GamePlayer;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
