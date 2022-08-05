@@ -12,8 +12,12 @@ import java.util.List;
 public class TabCompleter implements org.bukkit.command.TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (args.length == 1) {
-            return StringUtil.copyPartialMatches(args[0], Arrays.asList("toggle", "stop", "status"), new ArrayList<>());
+        if (sender.isOp()) {
+            if (args.length == 1) {
+                return StringUtil.copyPartialMatches(args[0], Arrays.asList("stop", "status"), new ArrayList<>());
+            } else {
+                return Collections.emptyList();
+            }
         } else {
             return Collections.emptyList();
         }

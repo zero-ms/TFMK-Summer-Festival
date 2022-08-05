@@ -6,11 +6,15 @@ import ms.zero.tfmk.tfmkfishing.fishing.util.FishInfo;
 import ms.zero.tfmk.tfmkfishing.fishing.objects.FishType;
 import ms.zero.tfmk.tfmkfishing.fishing.util.FishUtil;
 import ms.zero.tfmk.tfmkfishing.fishing.util.RandomSelector;
+import ms.zero.tfmk.tfmkfishing.reflection.HotelChecker;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -31,18 +35,26 @@ public class ContestManager {
         return contestStarted;
     }
 
-    public static void quit(Player player) {
+    public static void quit(Player player) throws Exception {
         playerToContestPlayer.remove(player);
         takeFishingRod(player);
     }
 
     public static Boolean joinAllQueuedPlayers() {
         Integer count = 0;
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (FishUtil.isInside(player.getLocation())) {
-                ContestPlayer contestPlayer = new ContestPlayer(player, player.getInventory().getItem(0));
-                playerToContestPlayer.put(player, contestPlayer);
-                count += 1;
+        Chunk contestStartChunkPoint = new Location(world, 270, 58, 436).getChunk();
+        for (Entity entity : contestStartChunkPoint.getEntities()) {
+            if (entity instanceof Player) {
+                Player player = (Player) entity;
+                if (HotelChecker.isPlayerAlreadyAssigned(player)) {
+                    if (FishUtil.isInside(player.getLocation())) {
+                        ContestPlayer contestPlayer = new ContestPlayer(player, player.getInventory().getItem(0));
+                        playerToContestPlayer.put(player, contestPlayer);
+                        count += 1;
+                    }
+                } else {
+                    player.sendMessage(translate("&6[TFMK] &7호텔 체크인을 먼저 해주세요."));
+                }
             }
         }
         if (count > 0) {
@@ -56,7 +68,7 @@ public class ContestManager {
         player.getInventory().setItem(0, FishInfo.getFishingRod());
     }
 
-    public static void takeFishingRod(Player player) {
+    public static void takeFishingRod(Player player) throws Exception {
         ItemStack backedUpItem = playerToContestPlayer.get(player).getBackedUpItem();
         if (backedUpItem != null) {
             player.getInventory().setItem(0, backedUpItem);
@@ -67,8 +79,8 @@ public class ContestManager {
 
     public static void startContest() {
         if (joinAllQueuedPlayers()) {
-            Bukkit.broadcastMessage(translate("&b[!] &7낚시대회가 시작됩니다!"));
-
+            Bukkit.broadcastMessage(translate("&b[!] &7낚시 대회가 시작되었습니다!"));
+            playerToContestPlayer.keySet().forEach(player -> player.sendTitle(translate("&b&l시작!"), translate("&f낚시 대회가 시작되었습니다!"), 0, 20 * 3, 20));
 
             contestStarted = true;
             endTimeMillis = System.currentTimeMillis() + (240 * 1000);
@@ -112,10 +124,22 @@ public class ContestManager {
     }
 
     public static void endContest() {
-        broadCastToPlayers(translate("&b[!] &7낚시대회가 종료되었습니다!"));
+        playerToContestPlayer.keySet().forEach(player -> player.sendTitle(translate("&c&l그만!"), translate("&f낚시 대회가 끝났습니다!"), 0, 20 * 3, 20));
+        Bukkit.broadcastMessage(translate("&b[!] &7낚시 대회가 끝났습니다!"));
         //showRankingToChat();
         playerToContestPlayer.keySet().forEach(ContestManager::showItself);
-        playerToContestPlayer.keySet().forEach(ContestManager::takeFishingRod);
+        playerToContestPlayer.keySet().forEach(player -> {
+            try {
+                takeFishingRod(player);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                clearContestObjects();
+            }
+        });
+        clearContestObjects();
+    }
+
+    public static void clearContestObjects() {
         Bukkit.getScheduler().cancelTask(actionBarTaskID);
         ContestTimer.clearQueue();
         actionBarTaskID = -1;

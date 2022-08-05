@@ -64,7 +64,7 @@ public class GameVariable {
         ItemMeta meta = KEY_PIECE.getItemMeta();
         meta.setDisplayName(translate("&e해방의 열쇠 조각"));
         lores = new ArrayList<>();
-        lores.add(translate("&7이 지옥같은 저택을 벗어날 수 있는 열쇠다."));
+        lores.add(translate("&7이 지옥 같은 멘션을 벗어날 수 있는 열쇠다."));
         lores.add(translate("&f"));
         lores.add(translate("&c[주의사항]"));
         lores.add(String.format(translate("&7총 &c%d&7개를 모아야 탈출이 가능합니다."), GameRule.getNeedKey()));

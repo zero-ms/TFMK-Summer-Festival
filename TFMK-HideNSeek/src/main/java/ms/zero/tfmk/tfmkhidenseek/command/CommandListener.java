@@ -17,9 +17,7 @@ public class CommandListener implements CommandExecutor {
         if (label.equalsIgnoreCase("game")) {
             if (args.length > 0) {
                 if (commandSender.isOp()) {
-                    if (args[0].equalsIgnoreCase("toggle")) {
-
-                    } else if (args[0].equalsIgnoreCase("stop")) {
+                    if (args[0].equalsIgnoreCase("stop")) {
                         GameManager.interruptGame();
                     } else if (args[0].equalsIgnoreCase("status")) {
                         commandSender.sendMessage(

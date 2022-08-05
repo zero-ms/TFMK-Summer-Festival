@@ -48,31 +48,6 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerMove(PlayerMoveEvent e) {
-        Player p = e.getPlayer();
-        Location l = e.getFrom();
-        Block b = l.getBlock();
-
-        if (b.getType().equals(Material.DARK_OAK_DOOR)) {
-            SignChecker checker = new SignChecker(l);
-            Integer roomNumber = checker.getRoomNumberFromSign();
-            if (roomNumber > 1000) {
-                if (!HotelManger.isOwner(p.getUniqueId(), roomNumber)) {
-                    if (!eventLockList.contains(p)) {
-                        eventLockList.add(p);
-                        Directional d = (Directional) b.getBlockData();
-                        p.setVelocity(d.getFacing().getOppositeFace().getDirection().multiply(1));
-
-                        p.sendMessage(translate("&a[TFMK] &7당신의 방이 아닙니다!"));
-                    }
-                }
-            }
-        } else {
-            eventLockList.remove(p);
-        }
-    }
-
-    @EventHandler
     public void onPlayerNPCRightClickEvent(NPCRightClickEvent npcRightClickEvent) {
         String npcName = ChatColor.stripColor(npcRightClickEvent.getNPC().getName());
         Player player = npcRightClickEvent.getClicker();

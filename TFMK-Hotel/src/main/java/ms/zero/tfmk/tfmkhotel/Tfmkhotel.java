@@ -2,6 +2,7 @@ package ms.zero.tfmk.tfmkhotel;
 
 import ms.zero.tfmk.tfmkhotel.command.CommandListener;
 import ms.zero.tfmk.tfmkhotel.event.EventListener;
+import ms.zero.tfmk.tfmkhotel.event.LocationChecker;
 import ms.zero.tfmk.tfmkhotel.event.TabCompleter;
 import ms.zero.tfmk.tfmkhotel.file.FileManager;
 import static ms.zero.tfmk.tfmkhotel.global.GlobalVariable.*;
@@ -25,6 +26,8 @@ public final class Tfmkhotel extends JavaPlugin {
 
         getCommand("room").setExecutor(new CommandListener());
         getCommand("room").setTabCompleter(new TabCompleter());
+
+        LocationChecker.startLocationChecker();
 
         getServer().getPluginManager().registerEvents(new EventListener(), this);
     }

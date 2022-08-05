@@ -6,4 +6,4 @@ prefix: TFMK-Fishing
 commands:
   fishing:
     description: Fishing command.
-depend: [ProtocolLib]
+depend: [Tfmkhotel]

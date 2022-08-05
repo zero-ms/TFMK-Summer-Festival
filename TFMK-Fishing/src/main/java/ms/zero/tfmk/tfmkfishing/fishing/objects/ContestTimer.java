@@ -1,10 +1,12 @@
 package ms.zero.tfmk.tfmkfishing.fishing.objects;
 
 import ms.zero.tfmk.tfmkfishing.fishing.ContestManager;
-import ms.zero.tfmk.tfmkfishing.fishing.util.FishInfo;
 import ms.zero.tfmk.tfmkfishing.fishing.util.FishUtil;
+import ms.zero.tfmk.tfmkfishing.reflection.HotelChecker;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import static ms.zero.tfmk.tfmkfishing.global.GlobalVariable.*;
@@ -20,6 +22,7 @@ public class ContestTimer {
     public static void clearQueue() {
         alreadyQueued.clear();
     }
+
     public static void startTimer() {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
             @Override
@@ -38,6 +41,9 @@ public class ContestTimer {
                         case 57:
                             Bukkit.broadcastMessage(translate("&b[!] &7낚시 대회 시작까지 3분 남았습니다."));
                             break;
+                        case 59:
+                            Bukkit.broadcastMessage(translate("&b[!] &7낚시 대회 시작까지 1분 남았습니다."));
+                            break;
 
                     }
                 }
@@ -53,36 +59,53 @@ public class ContestTimer {
     }
 
     public static void locationClipper() {
+
         Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
             @Override
             public void run() {
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    Location location = player.getLocation();
-                    if (!ContestManager.isContestStarted()) {
-                        if (FishUtil.isInside(location)) {
-                            if (alreadyQueued.containsKey(player)) {
-                                if (!alreadyQueued.get(player)) {
+                Chunk contestStartChunkPoint = new Location(world, 270, 58, 436).getChunk();
+                for (Entity entity : contestStartChunkPoint.getEntities()) {
+                    if (entity instanceof Player) {
+                        Player player = (Player) entity;
+                        Location location = player.getLocation();
+                        if (!ContestManager.isContestStarted()) {
+                            if (FishUtil.isInside(location)) {
+                                if (alreadyQueued.containsKey(player)) {
+                                    if (!alreadyQueued.get(player)) {
+                                        alreadyQueued.put(player, true);
+                                        if (HotelChecker.isPlayerAlreadyAssigned(player)) {
+                                            player.sendTitle(translate("&b&l입장"), translate("&b낚시대회 &7대기열에 입장하셨습니다."), 0, 20 * 3, 20);
+                                        } else {
+                                            player.sendMessage(translate("&6[TFMK] &7호텔 체크인을 먼저 해주세요."));
+                                        }
+                                    }
+                                } else {
                                     alreadyQueued.put(player, true);
-                                    player.sendTitle(translate("&b[입장]"), translate("&b낚시대회 &7대기열에 입장하셨습니다."), 0, 20 * 3, 20);
+                                    if (HotelChecker.isPlayerAlreadyAssigned(player)) {
+                                        player.sendTitle(translate("&b&l입장"), translate("&b낚시대회 &7대기열에 입장하셨습니다."), 0, 20 * 3, 20);
+                                    } else {
+                                        player.sendMessage(translate("&6[TFMK] &7호텔 체크인을 먼저 해주세요."));
+                                    }
                                 }
                             } else {
-                                alreadyQueued.put(player, true);
-                                player.sendTitle(translate("&b[입장]"), translate("&b낚시대회 &7대기열에 입장하셨습니다."), 0, 20 * 3, 20);
-                            }
-                        } else {
-                            if (alreadyQueued.containsKey(player)) {
-                                if (alreadyQueued.get(player)) {
+                                if (alreadyQueued.containsKey(player)) {
+                                    if (alreadyQueued.get(player)) {
+                                        alreadyQueued.put(player, false);
+                                        if (HotelChecker.isPlayerAlreadyAssigned(player)) {
+                                            player.sendTitle(translate("&c&l퇴장"), translate("&b낚시대회 &7대기열에서 퇴장하셨습니다."), 0, 20 * 3, 20);
+                                        } else {
+                                            player.sendMessage(translate("&6[TFMK] &7호텔 체크인을 먼저 해주세요."));
+                                        }
+                                    }
+                                } else {
                                     alreadyQueued.put(player, false);
-                                    player.sendTitle(translate("&c[퇴장]"), translate("&b낚시대회 &7대기열에서 퇴장하셨습니다."), 0, 20 * 3, 20);
                                 }
-                            } else {
-                                alreadyQueued.put(player, false);
                             }
                         }
                     }
                 }
             }
-        }, 0, 20L);
+        }, 0, 5L);
 
     }
 

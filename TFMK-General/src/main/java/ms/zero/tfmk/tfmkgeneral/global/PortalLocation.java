@@ -6,7 +6,7 @@ import org.bukkit.Location;
 import java.util.ArrayList;
 
 public class PortalLocation {
-    private static ArrayList<Location> portalBaseBlockLocation = new ArrayList<>();
+    public static ArrayList<Location> portalBaseBlockLocation = new ArrayList<>();
 
     static {
         portalBaseBlockLocation.add(new Location(Bukkit.getWorld("world"), -744, 91, 762));

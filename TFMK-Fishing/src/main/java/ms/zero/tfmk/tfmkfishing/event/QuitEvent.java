@@ -12,7 +12,11 @@ public class QuitEvent implements Listener {
     public void onPlayerQuit(PlayerQuitEvent quitEvent) {
         Player player = quitEvent.getPlayer();
         if (ContestManager.isContestPlayer(player)) {
-            ContestManager.quit(player);
+            try {
+                ContestManager.quit(player);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
 }

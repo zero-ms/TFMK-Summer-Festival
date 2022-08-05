@@ -6,7 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import ms.zero.tfmk.tfmkhidenseek.game.GameManager;
-import ms.zero.tfmk.tfmkhidenseek.global.HotelChecker;
+import ms.zero.tfmk.tfmkhidenseek.reflection.HotelChecker;
 import ms.zero.tfmk.tfmkhidenseek.game.objects.GameRule;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
 
@@ -15,7 +15,7 @@ import static ms.zero.tfmk.tfmkhidenseek.global.Util.*;
 public class NPCEvent implements Listener {
 
     @EventHandler
-    public void onPlayerNPCRightClickEvent(NPCRightClickEvent npcRightClickEvent) throws Exception {
+    public void onPlayerNPCRightClickEvent(NPCRightClickEvent npcRightClickEvent) {
         String npcName = ChatColor.stripColor(npcRightClickEvent.getNPC().getName());
         Player clicker = npcRightClickEvent.getClicker();
         if (npcName.equalsIgnoreCase("참가하기")) {

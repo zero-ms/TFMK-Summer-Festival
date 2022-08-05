@@ -15,7 +15,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
             if (sender.isOp()) {
-                return StringUtil.copyPartialMatches(args[0], Arrays.asList("start"), new ArrayList<>());
+                return StringUtil.copyPartialMatches(args[0], Arrays.asList("start", "give"), new ArrayList<>());
             } else {
                 return Collections.emptyList();
             }

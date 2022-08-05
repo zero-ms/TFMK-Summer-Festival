@@ -1,4 +1,4 @@
-package ms.zero.tfmk.tfmkhidenseek.global;
+package ms.zero.tfmk.tfmkfishing.reflection;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

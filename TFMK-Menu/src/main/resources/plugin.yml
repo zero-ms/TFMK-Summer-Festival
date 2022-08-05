@@ -4,3 +4,12 @@ main: ms.zero.tfmk.tfmkmenu.Tfmkmenu
 api-version: 1.16
 prefix: TFMK-Menu
 description: Warp Menu plugin
+commands:
+  warp:
+    description: Open warp GUI
+  menu:
+    description: Open warp GUI
+  워프:
+    description: Open warp GUI
+  메뉴:
+    description: Open warp GUI

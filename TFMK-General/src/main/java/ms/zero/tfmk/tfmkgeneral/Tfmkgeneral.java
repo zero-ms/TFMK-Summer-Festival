@@ -1,7 +1,7 @@
 package ms.zero.tfmk.tfmkgeneral;
 
 import ms.zero.tfmk.tfmkgeneral.event.JoinQuitEvent;
-import ms.zero.tfmk.tfmkgeneral.event.PortalEvent;
+import ms.zero.tfmk.tfmkgeneral.event.PortalChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -13,7 +13,7 @@ public final class Tfmkgeneral extends JavaPlugin {
     public void onEnable() {
         plugin = this;
         Bukkit.getPluginManager().registerEvents(new JoinQuitEvent(), this);
-        Bukkit.getPluginManager().registerEvents(new PortalEvent(), this);
+        PortalChecker.startPortalChecker();
     }
 
     @Override

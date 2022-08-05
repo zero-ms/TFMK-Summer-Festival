@@ -6,7 +6,9 @@ import ms.zero.tfmk.tfmkhidenseek.event.GameEvent;
 import ms.zero.tfmk.tfmkhidenseek.event.NPCEvent;
 import ms.zero.tfmk.tfmkhidenseek.file.KeyLocationFileHandler;
 import ms.zero.tfmk.tfmkhidenseek.file.SettingFileHandler;
+import ms.zero.tfmk.tfmkhidenseek.game.GameManager;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import static ms.zero.tfmk.tfmkhidenseek.global.Util.*;
@@ -34,5 +36,9 @@ public final class Tfmkhidenseek extends JavaPlugin {
     @Override
     public void onDisable() {
         Bukkit.getConsoleSender().sendMessage(translate("&aTFMK-HideNSeek 플러그인이 비활성화 되었습니다."));
+    }
+
+    public static Boolean isPlayingHideNSeek(Player player) {
+        return GameManager.isPlaying(player);
     }
 }

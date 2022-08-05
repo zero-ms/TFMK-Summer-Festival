@@ -49,7 +49,7 @@ public class FishInfo {
 
         lore = new ArrayList<>();
         lore.add(translate("&7기름지고 고소한 연어다."));
-        lore.add(translate("&7개발자는 연어회를 아주 좋아한다."));
+        lore.add(translate("&7개발자는 연어 회를 아주 좋아한다."));
         lore.add(translate("&f"));
         lore.add(translate("&7점수: &63&7점"));
 
@@ -62,7 +62,7 @@ public class FishInfo {
 
         lore = new ArrayList<>();
         lore.add(translate("&7독이 잔뜩 오른 복어이다."));
-        lore.add(translate("&7이걸 왜 먹을생각을 한거지?"));
+        lore.add(translate("&7어쩌면 인생에서 딱 한 번만 맛볼 수 있을지도 모른다."));
         lore.add(translate("&f"));
         lore.add(translate("&7점수: &62&7점"));
 
